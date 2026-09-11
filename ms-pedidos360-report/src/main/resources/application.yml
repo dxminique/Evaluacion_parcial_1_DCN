@@ -9,3 +9,8 @@ spring:
     database-platform: org.hibernate.dialect.OracleDialect
     hibernate.ddl-auto: update
     open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AZURE_AD_ISSUER_URI:https://login.microsoftonline.com/f808e7f8-d340-4129-aa19-44b19281283a/v2.0}
