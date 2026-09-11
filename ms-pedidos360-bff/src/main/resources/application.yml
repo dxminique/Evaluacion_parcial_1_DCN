@@ -15,4 +15,4 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://login.microsoftonline.com/f808e7f8-d340-4129-aa19-44b19281283a/v2.0
+          issuer-uri: https://sts.windows.net/f808e7f8-d340-4129-aa19-44b19281283a/
