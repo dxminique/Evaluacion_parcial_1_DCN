@@ -1,6 +1,5 @@
 import { useMsal } from "@azure/msal-react";
 import logo from "../../assets/logo.png";
-import api from "../../services/api";
 
 export default function Dashboard() {
   const { accounts, instance } = useMsal();
@@ -8,16 +7,6 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     instance.logoutRedirect();
-  };
-
-  const handleTestBackend = async () => {
-    try {
-      const response = await api.get("/api/secure-ping");
-      alert("Respuesta del backend: " + response.data);
-    } catch (error) {
-      alert("Error: " + (error.response?.status || error.message));
-      console.error(error);
-    }
   };
 
   const initials = account?.name
@@ -35,9 +24,6 @@ export default function Dashboard() {
         </div>
         <div style={styles.headerRight}>
           <div style={styles.avatar}>{initials}</div>
-          <button style={styles.testButton} onClick={handleTestBackend}>
-            Probar backend
-          </button>
           <button style={styles.logoutButton} onClick={handleLogout}>
             Cerrar sesión
           </button>
@@ -112,15 +98,6 @@ const styles = {
     justifyContent: "center",
     fontSize: "13px",
     fontWeight: 600,
-  },
-  testButton: {
-    backgroundColor: "transparent",
-    color: "#4ade80",
-    border: "1px solid #3a3a46",
-    borderRadius: "6px",
-    padding: "8px 16px",
-    fontSize: "13px",
-    cursor: "pointer",
   },
   logoutButton: {
     backgroundColor: "transparent",
