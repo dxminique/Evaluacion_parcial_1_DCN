@@ -3,7 +3,7 @@ import { msalInstance } from "../auth/msalInstance";
 import { loginRequest } from "../auth/authConfig";
 
 const api = axios.create({
-  baseURL: "http://localhost:8083",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8083",
 });
 
 api.interceptors.request.use(async (config) => {
