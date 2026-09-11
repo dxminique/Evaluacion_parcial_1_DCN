@@ -1,9 +1,19 @@
-import { useMsal } from "@azure/msal-react";
+import { useEffect } from "react";
+import { useMsal, useIsAuthenticated } from "@azure/msal-react";
+import { useNavigate } from "react-router-dom";
 import { loginRequest } from "../../auth/authConfig";
 import logo from "../../assets/logo.png";
 
 export default function Login() {
   const { instance } = useMsal();
+  const isAuthenticated = useIsAuthenticated();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = () => {
     instance.loginRedirect(loginRequest).catch((error) => {

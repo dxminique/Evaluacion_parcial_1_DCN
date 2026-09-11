@@ -13,6 +13,8 @@ export default function Dashboard() {
     ? account.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
     : "?";
 
+  const roles = account?.idTokenClaims?.roles?.join(", ") || "Sin rol asignado";
+
   return (
     <div style={styles.page}>
       <header style={styles.header}>
@@ -45,7 +47,7 @@ export default function Dashboard() {
           </div>
           <div style={styles.statCard}>
             <p style={styles.statLabel}>Rol</p>
-            <p style={styles.statValue}>Autenticado</p>
+            <p style={styles.statValue}>{roles}</p>
           </div>
         </div>
       </main>
