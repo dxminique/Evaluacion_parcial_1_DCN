@@ -1,11 +1,25 @@
 services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      # TODO: cambiar este valor antes de usar en produccion
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: pedidos360
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      # Opcional: solo si necesitas conectarte desde fuera del compose para debug
+      - "3307:3306"
+
   backend:
     build:
       context: ./ms-pedidos360-bff
     ports:
       - "8083:8083"
+    depends_on:
+      - mysql
     environment:
-      DB_URL: jdbc:mysql://host.docker.internal:3306/pedidos360
+      DB_URL: jdbc:mysql://mysql:3306/pedidos360
       DB_USERNAME: root
       DB_PASSWORD: 1234
 
@@ -16,3 +30,6 @@ services:
         VITE_API_URL: http://localhost:8083
     ports:
       - "80:80"
+
+volumes:
+  mysql_data:
