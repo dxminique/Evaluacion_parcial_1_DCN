@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: ./ms-pedidos360-bff/ms-pedidos360-bff
+    ports:
+      - "8083:8083"
+    environment:
+      # TODO: reemplazar por los valores reales de la base de datos en produccion.
+      # OJO: "localhost" aqui es el propio contenedor del backend, no el host EC2
+      # ni otro contenedor — si la DB corre en RDS o en otro host, usa esa direccion.
+      DB_URL: jdbc:mysql://localhost:3306/pedidos360
+      DB_USERNAME: root
+      DB_PASSWORD: 1234
+
+  frontend:
+    build:
+      context: ./frontend-pedidos360
+      args:
+        # Esta URL queda incrustada en el bundle JS y la usa el navegador del
+        # usuario final, no la red interna de Docker — por eso debe ser la IP
+        # publica o el dominio de la instancia EC2 (no "backend", ese nombre
+        # solo resuelve dentro de la red de docker-compose).
+        VITE_API_URL: http://localhost:8083
+    ports:
+      - "80:80"
