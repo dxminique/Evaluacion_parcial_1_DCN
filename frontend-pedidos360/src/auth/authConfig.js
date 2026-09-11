@@ -12,5 +12,5 @@ export const msalConfig = {
 };
 
 export const loginRequest = {
-  scopes: ["User.Read"],
+  scopes: ["api://6fc9e12e-949d-4672-8126-89ab30c6f757/access_as_user"],
 };
