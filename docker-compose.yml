@@ -51,7 +51,7 @@ services:
     build:
       context: ./frontend-pedidos360
       args:
-        VITE_API_URL: http://localhost:8083
+        VITE_API_URL: http://100.53.191.136:8083
     ports:
       - "80:80"
 
