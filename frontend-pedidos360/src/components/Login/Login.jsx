@@ -5,7 +5,7 @@ import { loginRequest } from "../../auth/authConfig";
 import logo from "../../assets/logo.png";
 
 export default function Login() {
-  const { instance } = useMsal();
+  const { instance, inProgress } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
 
@@ -16,6 +16,12 @@ export default function Login() {
   }, [isAuthenticated, navigate]);
 
   const handleLogin = () => {
+    if (inProgress !== "none") {
+      sessionStorage.clear();
+      window.location.reload();
+      return;
+    }
+
     instance.loginRedirect(loginRequest).catch((error) => {
       console.error(error);
     });
