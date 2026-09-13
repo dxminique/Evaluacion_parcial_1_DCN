@@ -23,6 +23,30 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: 1234
 
+  orders:
+    build:
+      context: ./ms-pedidos360-orders
+    ports:
+      - "8087:8087"
+    depends_on:
+      - mysql
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/pedidos360
+      DB_USERNAME: root
+      DB_PASSWORD: 1234
+
+  catalog:
+    build:
+      context: ./ms-pedidos360-catalog
+    ports:
+      - "8086:8086"
+    depends_on:
+      - mysql
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/pedidos360
+      DB_USERNAME: root
+      DB_PASSWORD: 1234
+
   frontend:
     build:
       context: ./frontend-pedidos360
