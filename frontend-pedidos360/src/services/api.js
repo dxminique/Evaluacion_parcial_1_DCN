@@ -20,4 +20,22 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+export const catalogApi = axios.create({
+  baseURL: import.meta.env.VITE_CATALOG_URL || "http://localhost:8086",
+});
+
+catalogApi.interceptors.request.use(async (config) => {
+  const account = msalInstance.getAllAccounts()[0];
+
+  if (account) {
+    const response = await msalInstance.acquireTokenSilent({
+      ...loginRequest,
+      account,
+    });
+    config.headers.Authorization = `Bearer ${response.accessToken}`;
+  }
+
+  return config;
+});
+
 export default api;

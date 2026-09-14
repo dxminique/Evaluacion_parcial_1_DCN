@@ -1,9 +1,24 @@
+import { useEffect, useState } from "react";
 import { useMsal } from "@azure/msal-react";
+import { catalogApi } from "../../services/api";
 import logo from "../../assets/logo.png";
 
 export default function Dashboard() {
   const { accounts, instance } = useMsal();
   const account = accounts[0];
+  const [catalogStatus, setCatalogStatus] = useState("—");
+
+  useEffect(() => {
+    catalogApi
+      .get("/api/catalog")
+      .then((response) => {
+        setCatalogStatus(`${response.data.length} productos en catálogo`);
+      })
+      .catch((error) => {
+        console.error(error);
+        setCatalogStatus("No disponible");
+      });
+  }, []);
 
   const handleLogout = () => {
     instance.logoutRedirect();
@@ -43,7 +58,7 @@ export default function Dashboard() {
           </div>
           <div style={styles.statCard}>
             <p style={styles.statLabel}>Stock crítico</p>
-            <p style={styles.statValue}>—</p>
+            <p style={styles.statValue}>{catalogStatus}</p>
           </div>
           <div style={styles.statCard}>
             <p style={styles.statLabel}>Rol</p>
