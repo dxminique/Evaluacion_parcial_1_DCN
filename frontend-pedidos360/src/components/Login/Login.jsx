@@ -66,7 +66,7 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     minHeight: "100vh",
-    backgroundColor: "#0f0f14",
+    backgroundColor: "#0B1F33",
     padding: "24px",
   },
   grid: {
@@ -80,7 +80,7 @@ const styles = {
     boxShadow: "0 8px 30px rgba(0,0,0,0.4)",
   },
   brandPanel: {
-    backgroundColor: "#1c1c26",
+    backgroundColor: "#123A5A",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -113,7 +113,7 @@ const styles = {
     margin: 0,
   },
   formPanel: {
-    backgroundColor: "#25252f",
+    backgroundColor: "#1E4F73",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
