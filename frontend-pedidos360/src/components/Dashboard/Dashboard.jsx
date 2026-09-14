@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useMsal } from "@azure/msal-react";
-import { catalogApi } from "../../services/api";
+import { catalogApi, ordersApi } from "../../services/api";
 import logo from "../../assets/logo.png";
 
 export default function Dashboard() {
   const { accounts, instance } = useMsal();
   const account = accounts[0];
   const [catalogStatus, setCatalogStatus] = useState("—");
+  const [ordersStatus, setOrdersStatus] = useState("—");
 
   useEffect(() => {
     catalogApi
@@ -17,6 +18,18 @@ export default function Dashboard() {
       .catch((error) => {
         console.error(error);
         setCatalogStatus("No disponible");
+      });
+  }, []);
+
+  useEffect(() => {
+    ordersApi
+      .get("/api/orders")
+      .then((response) => {
+        setOrdersStatus(`${response.data.length} pedidos activos`);
+      })
+      .catch((error) => {
+        console.error(error);
+        setOrdersStatus("No disponible");
       });
   }, []);
 
@@ -54,7 +67,7 @@ export default function Dashboard() {
         <div style={styles.grid}>
           <div style={styles.statCard}>
             <p style={styles.statLabel}>Pedidos activos</p>
-            <p style={styles.statValue}>—</p>
+            <p style={styles.statValue}>{ordersStatus}</p>
           </div>
           <div style={styles.statCard}>
             <p style={styles.statLabel}>Stock crítico</p>

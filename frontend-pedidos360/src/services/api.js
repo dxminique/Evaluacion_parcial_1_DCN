@@ -38,4 +38,22 @@ catalogApi.interceptors.request.use(async (config) => {
   return config;
 });
 
+export const ordersApi = axios.create({
+  baseURL: import.meta.env.VITE_ORDERS_URL || "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/orders",
+});
+
+ordersApi.interceptors.request.use(async (config) => {
+  const account = msalInstance.getAllAccounts()[0];
+
+  if (account) {
+    const response = await msalInstance.acquireTokenSilent({
+      ...loginRequest,
+      account,
+    });
+    config.headers.Authorization = `Bearer ${response.accessToken}`;
+  }
+
+  return config;
+});
+
 export default api;
