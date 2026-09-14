@@ -58,15 +58,15 @@ export default function Dashboard() {
 const styles = {
   page: {
     minHeight: "100vh",
-    backgroundColor: "#0f0f14",
+    backgroundColor: "#0B1F33",
   },
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     padding: "16px 32px",
-    backgroundColor: "#1c1c26",
-    borderBottom: "1px solid #2c2c38",
+    backgroundColor: "#123A5A",
+    borderBottom: "1px solid #1E4F73",
   },
   headerLeft: {
     display: "flex",
@@ -114,7 +114,7 @@ const styles = {
     margin: "0 auto",
   },
   welcomeCard: {
-    backgroundColor: "#1c1c26",
+    backgroundColor: "#123A5A",
     borderRadius: "12px",
     padding: "24px 28px",
     marginBottom: "24px",
@@ -136,7 +136,7 @@ const styles = {
     gap: "16px",
   },
   statCard: {
-    backgroundColor: "#1c1c26",
+    backgroundColor: "#123A5A",
     borderRadius: "12px",
     padding: "20px",
   },
