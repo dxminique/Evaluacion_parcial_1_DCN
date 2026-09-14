@@ -3,7 +3,7 @@ import { msalInstance } from "../auth/msalInstance";
 import { loginRequest } from "../auth/authConfig";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8083",
+  baseURL: import.meta.env.VITE_API_URL || "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/api",
 });
 
 api.interceptors.request.use(async (config) => {
@@ -21,7 +21,7 @@ api.interceptors.request.use(async (config) => {
 });
 
 export const catalogApi = axios.create({
-  baseURL: import.meta.env.VITE_CATALOG_URL || "http://localhost:8086",
+  baseURL: import.meta.env.VITE_CATALOG_URL || "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/catalog",
 });
 
 catalogApi.interceptors.request.use(async (config) => {
