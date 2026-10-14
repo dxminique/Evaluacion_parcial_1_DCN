@@ -16,6 +16,23 @@ services:
       timeout: 5s
       retries: 20
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      # TODO: cambiar este usuario/clave antes de usar en produccion
+      RABBITMQ_DEFAULT_USER: pedidos
+      RABBITMQ_DEFAULT_PASS: 1234
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
   backend:
     build:
       context: ./ms-pedidos360-bff
@@ -68,3 +85,4 @@ services:
 
 volumes:
   mysql_data:
+  rabbitmq_data:
