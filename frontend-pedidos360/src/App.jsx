@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/Login/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
 import ProtectedRoute from "./guards/ProtectedRoute";
+import RoleRoute from "./guards/RoleRoute";
+import ProductosPage from "./pages/Productos/ProductosPage";
 
 function App() {
   return (
@@ -22,6 +24,14 @@ function App() {
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/productos"
+          element={
+            <RoleRoute allowedRoles={["Admin", "Operador"]}>
+              <ProductosPage />
+            </RoleRoute>
           }
         />
       </Routes>

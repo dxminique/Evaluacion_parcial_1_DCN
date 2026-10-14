@@ -10,6 +10,11 @@ services:
     ports:
       # Opcional: solo si necesitas conectarte desde fuera del compose para debug
       - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p1234"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   backend:
     build:
@@ -17,7 +22,9 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+    restart: on-failure
     environment:
       DB_URL: jdbc:mysql://mysql:3306/pedidos360
       DB_USERNAME: root
@@ -29,7 +36,9 @@ services:
     ports:
       - "8087:8087"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+    restart: on-failure
     environment:
       DB_URL: jdbc:mysql://mysql:3306/pedidos360
       DB_USERNAME: root
@@ -41,7 +50,9 @@ services:
     ports:
       - "8086:8086"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+    restart: on-failure
     environment:
       DB_URL: jdbc:mysql://mysql:3306/pedidos360
       DB_USERNAME: root

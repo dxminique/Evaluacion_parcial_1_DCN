@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useMsal } from "@azure/msal-react";
+import { Link } from "react-router-dom";
 import { catalogApi, ordersApi } from "../../services/api";
+import { useRoles } from "../../auth/useRoles";
 import logo from "../../assets/logo.png";
 
 export default function Dashboard() {
   const { accounts, instance } = useMsal();
+  const { esAdminOOperador } = useRoles();
   const account = accounts[0];
   const [catalogStatus, setCatalogStatus] = useState("—");
   const [ordersStatus, setOrdersStatus] = useState("—");
@@ -17,7 +20,7 @@ export default function Dashboard() {
       })
       .catch((error) => {
         console.error(error);
-        setCatalogStatus("No disponible");
+        setCatalogStatus(error.friendlyMessage || "No disponible");
       });
   }, []);
 
@@ -29,7 +32,7 @@ export default function Dashboard() {
       })
       .catch((error) => {
         console.error(error);
-        setOrdersStatus("No disponible");
+        setOrdersStatus(error.friendlyMessage || "No disponible");
       });
   }, []);
 
@@ -51,6 +54,11 @@ export default function Dashboard() {
           <span style={styles.headerTitle}>Pedidos360</span>
         </div>
         <div style={styles.headerRight}>
+          {esAdminOOperador && (
+            <Link to="/productos" style={styles.manageLink}>
+              Gestionar productos
+            </Link>
+          )}
           <div style={styles.avatar}>{initials}</div>
           <button style={styles.logoutButton} onClick={handleLogout}>
             Cerrar sesión
@@ -114,6 +122,14 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "16px",
+  },
+  manageLink: {
+    color: "#fff",
+    fontSize: "13px",
+    textDecoration: "none",
+    border: "1px solid #1E4F73",
+    borderRadius: "6px",
+    padding: "8px 16px",
   },
   avatar: {
     width: "36px",

@@ -27,6 +27,18 @@ public class ProductoService {
         Producto producto = encontrar(id); producto.setStock(request.stock());
         return ProductoResponse.from(repository.save(producto));
     }
+    public ProductoResponse actualizar(Long id, ActualizarProductoRequest request) {
+        Producto producto = encontrar(id);
+        producto.setNombre(request.nombre());
+        producto.setDescripcion(request.descripcion());
+        producto.setPrecio(request.precio());
+        producto.setStock(request.stock());
+        producto.setActivo(request.activo());
+        return ProductoResponse.from(repository.save(producto));
+    }
+    public void eliminar(Long id) {
+        repository.delete(encontrar(id));
+    }
     private Producto encontrar(Long id) {
         return repository.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Producto " + id + " no encontrado"));
     }

@@ -20,4 +20,11 @@ public class ProductoController {
     @PatchMapping("/{id}/stock") public ProductoResponse actualizarStock(@PathVariable Long id, @Valid @RequestBody ActualizarStockRequest request) {
         return service.actualizarStock(id, request);
     }
+    @PutMapping("/{id}") public ProductoResponse actualizar(@PathVariable Long id, @Valid @RequestBody ActualizarProductoRequest request) {
+        return service.actualizar(id, request);
+    }
+    @DeleteMapping("/{id}") public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        service.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
 }

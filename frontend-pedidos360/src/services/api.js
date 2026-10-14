@@ -2,6 +2,18 @@ import axios from "axios";
 import { msalInstance } from "../auth/msalInstance";
 import { loginRequest } from "../auth/authConfig";
 
+function attachForbiddenMessage(instance) {
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 403) {
+        error.friendlyMessage = "No tienes permisos para esta acción";
+      }
+      return Promise.reject(error);
+    }
+  );
+}
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/api",
 });
@@ -19,6 +31,8 @@ api.interceptors.request.use(async (config) => {
 
   return config;
 });
+
+attachForbiddenMessage(api);
 
 export const catalogApi = axios.create({
   baseURL: import.meta.env.VITE_CATALOG_URL || "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/catalog",
@@ -38,6 +52,8 @@ catalogApi.interceptors.request.use(async (config) => {
   return config;
 });
 
+attachForbiddenMessage(catalogApi);
+
 export const ordersApi = axios.create({
   baseURL: import.meta.env.VITE_ORDERS_URL || "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/orders",
 });
@@ -55,5 +71,7 @@ ordersApi.interceptors.request.use(async (config) => {
 
   return config;
 });
+
+attachForbiddenMessage(ordersApi);
 
 export default api;
