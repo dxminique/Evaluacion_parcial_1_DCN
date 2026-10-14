@@ -74,6 +74,18 @@ services:
     environment:
       RABBITMQ_HOST: rabbitmq
 
+  rabbit-admin:
+    build:
+      context: ./ms-pedidos360-rabbit-admin
+    ports:
+      - "8088:8088"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+    environment:
+      RABBITMQ_HOST: rabbitmq
+
   catalog:
     build:
       context: ./ms-pedidos360-catalog

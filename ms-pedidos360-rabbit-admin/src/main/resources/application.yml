@@ -1,0 +1,16 @@
+server:
+  port: ${SERVER_PORT:8088}
+
+spring:
+  application:
+    name: ms-pedidos360-rabbit-admin
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:pedidos}
+    password: ${RABBITMQ_PASSWORD:1234}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AZURE_AD_ISSUER_URI:https://login.microsoftonline.com/f808e7f8-d340-4129-aa19-44b19281283a/v2.0}
