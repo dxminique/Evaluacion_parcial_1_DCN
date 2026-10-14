@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: ms-pedidos360-notify
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:pedidos}
+    password: ${RABBITMQ_PASSWORD:1234}
+
+app:
+  rabbit:
+    exchange: cmd.direct
+    dead-letter-exchange: cmd.dead.dlx
+    email-queue: q.cmd.email
+    email-routing-key: email.send
+    email-dlq: q.cmd.email.dlq
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

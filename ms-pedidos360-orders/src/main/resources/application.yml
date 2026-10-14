@@ -22,3 +22,16 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${AZURE_AD_ISSUER_URI:https://login.microsoftonline.com/f808e7f8-d340-4129-aa19-44b19281283a/v2.0}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:pedidos}
+    password: ${RABBITMQ_PASSWORD:1234}
+
+app:
+  rabbit:
+    exchange: cmd.direct
+    dead-letter-exchange: cmd.dead.dlx
+    email-queue: q.cmd.email
+    email-routing-key: email.send
+    email-dlq: q.cmd.email.dlq

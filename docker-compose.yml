@@ -55,11 +55,24 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: on-failure
     environment:
       DB_URL: jdbc:mysql://mysql:3306/pedidos360
       DB_USERNAME: root
       DB_PASSWORD: 1234
+      RABBITMQ_HOST: rabbitmq
+
+  notify:
+    build:
+      context: ./ms-pedidos360-notify
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+    environment:
+      RABBITMQ_HOST: rabbitmq
 
   catalog:
     build:
