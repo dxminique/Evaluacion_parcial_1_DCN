@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { catalogApi } from "../../services/api";
-import logo from "../../assets/logo.png";
+import AppNavigation from "../../components/Navigation/AppNavigation";
 
 const initialForm = { nombre: "", descripcion: "", precio: "", stock: "" };
 
@@ -118,24 +117,15 @@ export default function ProductosPage() {
   };
 
   return (
-    <div style={styles.page}>
-      <header style={styles.header}>
-        <div style={styles.headerLeft}>
-          <img src={logo} alt="Pedidos360" style={styles.headerLogo} />
-          <span style={styles.headerTitle}>Pedidos360 · Productos</span>
-        </div>
-        <Link to="/dashboard" style={styles.backLink}>
-          ← Volver al Dashboard
-        </Link>
-      </header>
+    <div className="products-page" style={styles.page}>
+      <AppNavigation activePage="products" />
+      <main className="products-main" style={styles.main}>
+        {error && <div className="status-alert status-alert-error" style={styles.errorBox}>{error}</div>}
+        {success && <div className="status-alert status-alert-success" style={styles.successBox}>{success}</div>}
 
-      <main style={styles.main}>
-        {error && <div style={styles.errorBox}>{error}</div>}
-        {success && <div style={styles.successBox}>{success}</div>}
-
-        <section style={styles.card}>
+        <section className="product-card" style={styles.card}>
           <h2 style={styles.cardTitle}>Nuevo producto</h2>
-          <form onSubmit={handleCrear} style={styles.form}>
+          <form className="product-create-form" onSubmit={handleCrear} style={styles.form}>
             <input
               style={styles.input}
               placeholder="Nombre"
@@ -176,12 +166,12 @@ export default function ProductosPage() {
           </form>
         </section>
 
-        <section style={styles.card}>
+        <section className="product-card catalog-card" style={styles.card}>
           <h2 style={styles.cardTitle}>Catálogo</h2>
           {loading ? (
             <p style={styles.mutedText}>Cargando productos...</p>
           ) : (
-            <table style={styles.table}>
+            <table className="catalog-table" style={styles.table}>
               <thead>
                 <tr>
                   <th style={styles.th}>ID</th>

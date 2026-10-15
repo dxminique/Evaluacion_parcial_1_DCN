@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { useNavigate } from "react-router-dom";
 import { loginRequest } from "../../auth/authConfig";
-import logo from "../../assets/logo.png";
 
 export default function Login() {
   const { instance, inProgress } = useMsal();
@@ -28,11 +27,11 @@ export default function Login() {
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.grid}>
+    <div className="login-page" style={styles.page}>
+      <div className="login-layout" style={styles.grid}>
         <div style={styles.brandPanel}>
           <div style={styles.logoBox}>
-            <img src={logo} alt="Pedidos360" style={styles.logoImg} />
+            <img src="/pedidos360-mark.svg" alt="Pedidos360" style={styles.logoImg} />
           </div>
           <h1 style={styles.brandTitle}>Pedidos360</h1>
           <p style={styles.brandText}>

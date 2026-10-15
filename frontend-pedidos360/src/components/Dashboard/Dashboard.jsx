@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import { useMsal } from "@azure/msal-react";
-import { Link } from "react-router-dom";
 import { catalogApi, ordersApi } from "../../services/api";
-import { useRoles } from "../../auth/useRoles";
-import logo from "../../assets/logo.png";
+import AppNavigation from "../Navigation/AppNavigation";
 
 export default function Dashboard() {
-  const { accounts, instance } = useMsal();
-  const { esAdminOOperador } = useRoles();
+  const { accounts } = useMsal();
   const account = accounts[0];
   const [catalogStatus, setCatalogStatus] = useState("—");
   const [ordersStatus, setOrdersStatus] = useState("—");
@@ -36,52 +33,27 @@ export default function Dashboard() {
       });
   }, []);
 
-  const handleLogout = () => {
-    instance.logoutRedirect();
-  };
-
-  const initials = account?.name
-    ? account.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
-    : "?";
-
   const roles = account?.idTokenClaims?.roles?.join(", ") || "Sin rol asignado";
 
   return (
-    <div style={styles.page}>
-      <header style={styles.header}>
-        <div style={styles.headerLeft}>
-          <img src={logo} alt="Pedidos360" style={styles.headerLogo} />
-          <span style={styles.headerTitle}>Pedidos360</span>
-        </div>
-        <div style={styles.headerRight}>
-          {esAdminOOperador && (
-            <Link to="/productos" style={styles.manageLink}>
-              Gestionar productos
-            </Link>
-          )}
-          <div style={styles.avatar}>{initials}</div>
-          <button style={styles.logoutButton} onClick={handleLogout}>
-            Cerrar sesión
-          </button>
-        </div>
-      </header>
-
-      <main style={styles.main}>
-        <div style={styles.welcomeCard}>
+    <div className="dashboard-page" style={styles.page}>
+      <AppNavigation activePage="dashboard" />
+      <main className="dashboard-main" style={styles.main}>
+        <div className="dashboard-welcome" style={styles.welcomeCard}>
           <h1 style={styles.welcomeTitle}>Bienvenido, {account?.name}</h1>
           <p style={styles.welcomeEmail}>{account?.username}</p>
         </div>
 
-        <div style={styles.grid}>
-          <div style={styles.statCard}>
+        <div className="dashboard-stats" style={styles.grid}>
+          <div className="dashboard-stat-card" style={styles.statCard}>
             <p style={styles.statLabel}>Pedidos activos</p>
             <p style={styles.statValue}>{ordersStatus}</p>
           </div>
-          <div style={styles.statCard}>
+          <div className="dashboard-stat-card" style={styles.statCard}>
             <p style={styles.statLabel}>Stock crítico</p>
             <p style={styles.statValue}>{catalogStatus}</p>
           </div>
-          <div style={styles.statCard}>
+          <div className="dashboard-stat-card" style={styles.statCard}>
             <p style={styles.statLabel}>Rol</p>
             <p style={styles.statValue}>{roles}</p>
           </div>
