@@ -120,6 +120,14 @@ export default function ProductosPage() {
     <div className="products-page" style={styles.page}>
       <AppNavigation activePage="products" />
       <main className="products-main" style={styles.main}>
+        <div className="page-heading">
+          <div>
+            <p className="page-eyebrow">ADMINISTRACIÓN</p>
+            <h1>Productos</h1>
+            <p>Gestiona el catálogo, los precios y la disponibilidad de tu inventario.</p>
+          </div>
+          <span className="catalog-count">{productos.length} productos</span>
+        </div>
         {error && <div className="status-alert status-alert-error" style={styles.errorBox}>{error}</div>}
         {success && <div className="status-alert status-alert-success" style={styles.successBox}>{success}</div>}
 

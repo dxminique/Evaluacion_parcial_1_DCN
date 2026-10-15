@@ -40,8 +40,9 @@ export default function Dashboard() {
       <AppNavigation activePage="dashboard" />
       <main className="dashboard-main" style={styles.main}>
         <div className="dashboard-welcome" style={styles.welcomeCard}>
+          <p className="welcome-eyebrow">RESUMEN DE OPERACIONES</p>
           <h1 style={styles.welcomeTitle}>Bienvenido, {account?.name}</h1>
-          <p style={styles.welcomeEmail}>{account?.username}</p>
+          <p style={styles.welcomeEmail}>{account?.username} · Este es el estado actual de tu operación.</p>
         </div>
 
         <div className="dashboard-stats" style={styles.grid}>

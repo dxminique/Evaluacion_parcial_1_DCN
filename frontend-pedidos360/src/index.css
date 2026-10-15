@@ -299,6 +299,19 @@ button:disabled {
   color: #a52e38;
 }
 
+.dashboard-page .app-header .app-nav button,
+.products-page .app-header .app-nav button {
+  border-color: #f0d7d8 !important;
+  background: #fff8f8 !important;
+  color: #a8323e !important;
+}
+
+.dashboard-page .app-header .app-nav button:hover,
+.products-page .app-header .app-nav button:hover {
+  background: #fff0ef !important;
+  color: #8f2832 !important;
+}
+
 @keyframes nav-enter {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
@@ -307,12 +320,18 @@ button:disabled {
 @media (max-width: 700px) {
   .app-navigation {
     flex-wrap: wrap;
+    z-index: 20;
   }
 
   .app-nav {
-    top: calc(100% + 6px);
-    right: 0;
-    width: 100%;
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 78px);
+    right: 18px;
+    left: 18px;
+    width: auto;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 96px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
 
@@ -599,6 +618,140 @@ button:disabled {
   color: #207443 !important;
 }
 
+/* Refined page hierarchy and consistent workspace surfaces */
+.dashboard-page,
+.products-page {
+  background:
+    radial-gradient(ellipse at 50% -28%, rgb(216 234 249 / 65%), transparent 48%),
+    #f3f6fa !important;
+}
+
+.app-header {
+  min-height: 72px;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+.nav-brand img {
+  width: 38px;
+  height: 38px;
+  padding: 5px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 11px;
+  background: rgb(255 255 255 / 8%);
+}
+
+.dashboard-main,
+.products-main {
+  padding-top: 42px !important;
+  padding-bottom: 56px !important;
+}
+
+.page-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 0 0 26px;
+}
+
+.page-heading h1 {
+  margin: 0 0 7px;
+  color: #172b43;
+  font-family: "Space Grotesk", "DM Sans", sans-serif;
+  font-size: clamp(28px, 4vw, 36px);
+  letter-spacing: -0.045em;
+}
+
+.page-heading > div > p:last-child {
+  margin: 0;
+  color: #718096;
+  font-size: 14px;
+}
+
+.page-eyebrow,
+.welcome-eyebrow {
+  margin: 0 0 10px;
+  color: #9dd6fa;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+}
+
+.page-eyebrow { color: #0878c9; }
+
+.catalog-count {
+  flex: none;
+  padding: 9px 13px;
+  border: 1px solid #dce7f0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 82%);
+  color: #526a82;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.dashboard-welcome {
+  min-height: 205px;
+  padding: 38px 42px !important;
+  background: linear-gradient(115deg, #123452 0%, #155b87 58%, #177eb5 100%) !important;
+}
+
+.dashboard-welcome h1 { font-size: clamp(29px, 4vw, 38px) !important; }
+.dashboard-welcome p:last-child { margin-bottom: 0; }
+
+.dashboard-stat-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 154px;
+  border-color: #e4eaf1 !important;
+}
+
+.dashboard-stat-card::before {
+  position: absolute;
+  top: 0;
+  left: 24px;
+  width: 34px;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: #1685c4;
+  content: "";
+}
+
+.dashboard-stat-card p:last-child {
+  overflow-wrap: anywhere;
+}
+
+.products-main > .product-card {
+  border-color: #e4eaf1 !important;
+  box-shadow: 0 10px 30px rgb(25 45 70 / 5%) !important;
+}
+
+.products-main > .product-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.products-main > .product-card h2::before {
+  width: 4px;
+  height: 20px;
+  border-radius: 4px;
+  background: #1685c4;
+  content: "";
+}
+
+.catalog-table td:first-child {
+  color: #8493a3 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.catalog-table td:nth-child(4),
+.catalog-table td:nth-child(5) {
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
 .login-page {
   min-height: 100vh;
   padding: 32px !important;
@@ -660,6 +813,17 @@ button:disabled {
 }
 
 @media (max-width: 700px) {
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .dashboard-welcome {
+    min-height: 180px;
+    padding: 30px 25px !important;
+  }
+
   .dashboard-main,
   .products-main {
     padding: 24px 18px !important;
