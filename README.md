@@ -4,6 +4,8 @@
 
 Pedidos360 es una aplicación desarrollada bajo una arquitectura de microservicios para gestionar el proceso de pedidos y productos de forma centralizada.
 
+> **Importante:** todos los endpoints requieren un token JWT de Azure AD. Una llamada sin token responde **401 Unauthorized**; es el comportamiento esperado. Para probar, obtén un token con los usuarios de prueba (ver sección Autenticación) o importa la colección de Postman incluida en `docs/postman/`.
+
 El sistema permite administrar productos, stock y precios mediante el microservicio de catálogo, además de crear, consultar y actualizar pedidos y sus estados mediante el microservicio de pedidos. La notificación por correo ante la creación de un pedido se procesa de forma asíncrona vía RabbitMQ, y existe un microservicio administrador de RabbitMQ (colas, exchanges y bindings) solo para el rol Admin.
 
 La solución cuenta con un frontend para la interacción con los usuarios, un Backend for Frontend (BFF) que centraliza la comunicación entre la interfaz y los servicios backend, un API Gateway local (nginx) para pruebas con Postman sin depender de infraestructura en AWS, y mecanismos de autenticación y seguridad (Azure AD / JWT) para proteger el acceso a las funcionalidades.
@@ -226,6 +228,21 @@ password=<contraseña de la tabla de usuarios de prueba>
 ```
 
 El `access_token` de la respuesta se envía en cada request como `Authorization: Bearer <token>`. Dura aproximadamente **1 hora**; si expira, hay que pedir uno nuevo. Para probar los distintos niveles de acceso, pide un token por cada usuario de la tabla de arriba (uno para Admin, otro para Operador, otro para Cliente).
+
+### 7.4 Probar con Postman
+
+1. Importar `docs/postman/Pedidos360_Postman_Roles.postman_collection.json`.
+2. Verificar la variable `base = http://localhost:8090`.
+3. Ejecutar la carpeta **"0. Tokens"** (una petición por rol).
+4. Ejecutar el resto de las carpetas, o usar **Run collection** para correr todo de una vez.
+
+Resultados esperados:
+- Sin token → `401`.
+- Cliente intentando escribir (crear/editar/eliminar donde no tiene permiso) → `403`.
+- Admin/Operador en las operaciones permitidas → `200`/`201`.
+- `rabbit-admin` → solo Admin puede operar, el resto recibe `403`.
+
+Los tokens duran cerca de **1 hora**; si una corrida falla con `401` a mitad de camino, vuelve a ejecutar la carpeta "0. Tokens" para renovarlos.
 
 ## 8. Comandos útiles
 
