@@ -2,17 +2,19 @@ import { useEffect } from "react";
 import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { useNavigate } from "react-router-dom";
 import { loginRequest } from "../../auth/authConfig";
+import { useRoles } from "../../auth/useRoles";
 
 export default function Login() {
   const { instance, inProgress } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
+  const { esCliente } = useRoles();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard", { replace: true });
+      navigate(esCliente ? "/catalogo" : "/dashboard", { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, esCliente, navigate]);
 
   const handleLogin = () => {
     if (inProgress !== "none") {

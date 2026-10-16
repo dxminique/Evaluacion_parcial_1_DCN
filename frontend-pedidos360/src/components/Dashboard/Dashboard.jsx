@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useMsal } from "@azure/msal-react";
 import { catalogApi, ordersApi } from "../../services/api";
 import AppNavigation from "../Navigation/AppNavigation";
+import { Navigate } from "react-router-dom";
+import { useRoles } from "../../auth/useRoles";
 
 export default function Dashboard() {
   const { accounts } = useMsal();
   const account = accounts[0];
+  const { esCliente } = useRoles();
   const [catalogStatus, setCatalogStatus] = useState("—");
   const [ordersStatus, setOrdersStatus] = useState("—");
 
@@ -34,6 +37,8 @@ export default function Dashboard() {
   }, []);
 
   const roles = account?.idTokenClaims?.roles?.join(", ") || "Sin rol asignado";
+
+  if (esCliente) return <Navigate to="/catalogo" replace />;
 
   return (
     <div className="dashboard-page" style={styles.page}>

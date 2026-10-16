@@ -4,6 +4,7 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import ProtectedRoute from "./guards/ProtectedRoute";
 import RoleRoute from "./guards/RoleRoute";
 import ProductosPage from "./pages/Productos/ProductosPage";
+import CatalogoClientePage from "./components/CatalogoCliente/CatalogoClientePage";
 
 function App() {
   return (
@@ -24,6 +25,14 @@ function App() {
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/catalogo"
+          element={
+            <RoleRoute allowedRoles={["Cliente"]}>
+              <CatalogoClientePage />
+            </RoleRoute>
           }
         />
         <Route

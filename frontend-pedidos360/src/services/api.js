@@ -15,7 +15,7 @@ function attachForbiddenMessage(instance) {
 }
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/api",
+  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:8083" : "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/api"),
 });
 
 api.interceptors.request.use(async (config) => {
@@ -35,7 +35,7 @@ api.interceptors.request.use(async (config) => {
 attachForbiddenMessage(api);
 
 export const catalogApi = axios.create({
-  baseURL: import.meta.env.VITE_CATALOG_URL || "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/catalog",
+  baseURL: import.meta.env.VITE_CATALOG_URL || (import.meta.env.DEV ? "http://localhost:8086" : "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/catalog"),
 });
 
 catalogApi.interceptors.request.use(async (config) => {
@@ -55,7 +55,7 @@ catalogApi.interceptors.request.use(async (config) => {
 attachForbiddenMessage(catalogApi);
 
 export const ordersApi = axios.create({
-  baseURL: import.meta.env.VITE_ORDERS_URL || "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/orders",
+  baseURL: import.meta.env.VITE_ORDERS_URL || (import.meta.env.DEV ? "http://localhost:8087" : "https://kp6zftqlmf.execute-api.us-east-1.amazonaws.com/orders"),
 });
 
 ordersApi.interceptors.request.use(async (config) => {

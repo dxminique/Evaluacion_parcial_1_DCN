@@ -5,6 +5,7 @@ export function useRoles() {
   const account = accounts[0];
   const roles = account?.idTokenClaims?.roles ?? [];
   const esAdminOOperador = roles.includes("Admin") || roles.includes("Operador");
+  const esCliente = roles.includes("Cliente");
 
-  return { roles, esAdminOOperador };
+  return { roles, esAdminOOperador, esCliente };
 }

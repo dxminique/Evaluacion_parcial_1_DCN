@@ -6,12 +6,13 @@ import { useRoles } from "../../auth/useRoles";
 export default function AppNavigation({ activePage }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { instance } = useMsal();
-  const { esAdminOOperador } = useRoles();
+  const { esAdminOOperador, esCliente } = useRoles();
+  const inicioPath = esCliente ? "/catalogo" : "/dashboard";
   const closeMenu = () => setMenuOpen(false);
 
   return (
     <header className="app-header app-navigation">
-      <Link className="nav-brand" to="/dashboard" onClick={closeMenu}>
+      <Link className="nav-brand" to={inicioPath} onClick={closeMenu}>
         <img src="/pedidos360-mark.svg" alt="" />
         <span>Pedidos360</span>
       </Link>
@@ -46,6 +47,16 @@ export default function AppNavigation({ activePage }) {
             onClick={closeMenu}
           >
             Productos
+          </Link>
+        )}
+        {esCliente && (
+          <Link
+            to="/catalogo"
+            className={activePage === "catalog" ? "is-active" : ""}
+            aria-current={activePage === "catalog" ? "page" : undefined}
+            onClick={closeMenu}
+          >
+            Catálogo
           </Link>
         )}
         <button type="button" onClick={() => instance.logoutRedirect()}>

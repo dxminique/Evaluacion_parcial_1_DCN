@@ -104,7 +104,9 @@ services:
     build:
       context: ./frontend-pedidos360
       args:
-        VITE_API_URL: http://100.28.101.134:8083
+        VITE_API_URL: http://localhost:8083
+        VITE_CATALOG_URL: http://localhost:8086
+        VITE_ORDERS_URL: http://localhost:8087
     ports:
       - "80:80"
 
