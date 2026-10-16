@@ -17,4 +17,4 @@ jobs:
           script: |
             cd Evaluacion_parcial_1_DCN
             git pull
-            docker compose up --build -d
+            docker compose --profile frontend up --build -d
