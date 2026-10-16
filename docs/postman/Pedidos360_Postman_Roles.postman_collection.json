@@ -93,7 +93,19 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/token"
+              "raw": "https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/token",
+              "protocol": "https",
+              "host": [
+                "login",
+                "microsoftonline",
+                "com"
+              ],
+              "path": [
+                "{{tenant}}",
+                "oauth2",
+                "v2.0",
+                "token"
+              ]
             },
             "body": {
               "mode": "urlencoded",
@@ -145,7 +157,19 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/token"
+              "raw": "https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/token",
+              "protocol": "https",
+              "host": [
+                "login",
+                "microsoftonline",
+                "com"
+              ],
+              "path": [
+                "{{tenant}}",
+                "oauth2",
+                "v2.0",
+                "token"
+              ]
             },
             "body": {
               "mode": "urlencoded",
@@ -197,7 +221,19 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/token"
+              "raw": "https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/token",
+              "protocol": "https",
+              "host": [
+                "login",
+                "microsoftonline",
+                "com"
+              ],
+              "path": [
+                "{{tenant}}",
+                "oauth2",
+                "v2.0",
+                "token"
+              ]
             },
             "body": {
               "mode": "urlencoded",
@@ -248,7 +284,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base}}/catalog/api/catalog"
+              "raw": "{{base}}/catalog/api/catalog",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "catalog",
+                "api",
+                "catalog"
+              ]
             },
             "auth": {
               "type": "noauth"
@@ -272,7 +316,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base}}/orders/api/orders"
+              "raw": "{{base}}/orders/api/orders",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "orders",
+                "api",
+                "orders"
+              ]
             },
             "auth": {
               "type": "noauth"
@@ -296,7 +348,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/queues/q.cmd.email"
+              "raw": "{{base}}/rabbit-admin/api/queues/q.cmd.email",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "queues",
+                "q.cmd.email"
+              ]
             },
             "auth": {
               "type": "noauth"
@@ -325,7 +386,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base}}/catalog/api/catalog"
+              "raw": "{{base}}/catalog/api/catalog",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "catalog",
+                "api",
+                "catalog"
+              ]
             }
           }
         },
@@ -352,7 +421,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/catalog/api/catalog"
+              "raw": "{{base}}/catalog/api/catalog",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "catalog",
+                "api",
+                "catalog"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -377,7 +454,16 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base}}/catalog/api/catalog/{{producto_id_admin}}"
+              "raw": "{{base}}/catalog/api/catalog/{{producto_id_admin}}",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "catalog",
+                "api",
+                "catalog",
+                "{{producto_id_admin}}"
+              ]
             }
           }
         },
@@ -403,7 +489,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/queues"
+              "raw": "{{base}}/rabbit-admin/api/queues",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "queues"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -428,7 +522,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/queues/test.cola"
+              "raw": "{{base}}/rabbit-admin/api/queues/test.cola",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "queues",
+                "test.cola"
+              ]
             }
           }
         },
@@ -454,7 +557,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/exchanges"
+              "raw": "{{base}}/rabbit-admin/api/exchanges",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "exchanges"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -484,7 +595,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/bindings"
+              "raw": "{{base}}/rabbit-admin/api/bindings",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "bindings"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -509,7 +628,29 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/bindings?queue=test.cola&exchange=test.exchange&routingKey=test.key"
+              "raw": "{{base}}/rabbit-admin/api/bindings?queue=test.cola&exchange=test.exchange&routingKey=test.key",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "bindings"
+              ],
+              "query": [
+                {
+                  "key": "queue",
+                  "value": "test.cola"
+                },
+                {
+                  "key": "exchange",
+                  "value": "test.exchange"
+                },
+                {
+                  "key": "routingKey",
+                  "value": "test.key"
+                }
+              ]
             }
           }
         },
@@ -530,7 +671,16 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/exchanges/test.exchange"
+              "raw": "{{base}}/rabbit-admin/api/exchanges/test.exchange",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "exchanges",
+                "test.exchange"
+              ]
             }
           }
         },
@@ -551,7 +701,16 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/queues/test.cola"
+              "raw": "{{base}}/rabbit-admin/api/queues/test.cola",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "queues",
+                "test.cola"
+              ]
             }
           }
         },
@@ -577,7 +736,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/queues"
+              "raw": "{{base}}/rabbit-admin/api/queues",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "queues"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -607,7 +774,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/queues"
+              "raw": "{{base}}/rabbit-admin/api/queues",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "queues"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -632,7 +807,16 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/queues/no.existe.xyz"
+              "raw": "{{base}}/rabbit-admin/api/queues/no.existe.xyz",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "queues",
+                "no.existe.xyz"
+              ]
             }
           }
         }
@@ -668,7 +852,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base}}/catalog/api/catalog"
+              "raw": "{{base}}/catalog/api/catalog",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "catalog",
+                "api",
+                "catalog"
+              ]
             }
           }
         },
@@ -695,7 +887,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/catalog/api/catalog"
+              "raw": "{{base}}/catalog/api/catalog",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "catalog",
+                "api",
+                "catalog"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -720,7 +920,16 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base}}/catalog/api/catalog/{{producto_id_operador}}"
+              "raw": "{{base}}/catalog/api/catalog/{{producto_id_operador}}",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "catalog",
+                "api",
+                "catalog",
+                "{{producto_id_operador}}"
+              ]
             }
           }
         },
@@ -746,7 +955,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/queues"
+              "raw": "{{base}}/rabbit-admin/api/queues",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "queues"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -786,7 +1003,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base}}/catalog/api/catalog"
+              "raw": "{{base}}/catalog/api/catalog",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "catalog",
+                "api",
+                "catalog"
+              ]
             }
           }
         },
@@ -807,7 +1032,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base}}/orders/api/orders"
+              "raw": "{{base}}/orders/api/orders",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "orders",
+                "api",
+                "orders"
+              ]
             }
           }
         },
@@ -833,7 +1066,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/catalog/api/catalog"
+              "raw": "{{base}}/catalog/api/catalog",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "catalog",
+                "api",
+                "catalog"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -863,7 +1104,17 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/orders/api/orders/1/estado"
+              "raw": "{{base}}/orders/api/orders/1/estado",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "orders",
+                "api",
+                "orders",
+                "1",
+                "estado"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -893,7 +1144,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/rabbit-admin/api/queues"
+              "raw": "{{base}}/rabbit-admin/api/queues",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "rabbit-admin",
+                "api",
+                "queues"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -938,7 +1197,15 @@
               }
             ],
             "url": {
-              "raw": "{{base}}/orders/api/orders"
+              "raw": "{{base}}/orders/api/orders",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "orders",
+                "api",
+                "orders"
+              ]
             },
             "body": {
               "mode": "raw",
