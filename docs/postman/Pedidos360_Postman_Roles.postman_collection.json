@@ -1209,7 +1209,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"clienteEmail\": \"cliente@test.com\",\n  \"items\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 1\n    }\n  ]\n}"
+              "raw": "{\n  \"clienteEmail\": \"cliente@test.com\",\n  \"descripcion\": \"Pedido de prueba RabbitMQ\",\n  \"total\": 25000\n}"
             }
           }
         }
