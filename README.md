@@ -102,8 +102,9 @@ docker compose down
 | `ms-pedidos360-catalog` | `8086` | `/catalog/...` → catalog | `http://localhost:8086` |
 | `ms-pedidos360-orders` | `8087` | `/orders/...` → orders | `http://localhost:8087` |
 | `ms-pedidos360-rabbit-admin` | `8088` | `/rabbit-admin/...` → rabbit-admin | `http://localhost:8088` |
-| `rabbitmq` (AMQP) | `5672` | — | — |
-| `rabbitmq` (panel de administración) | `15672` | — | `http://localhost:15672` |
+| `rabbitmq` (AMQP, nodo 1) | `5672` | — | — |
+| `rabbitmq` (panel de administración, nodo 1) | `15672` | — | `http://localhost:15672` |
+| `rabbitmq2` (panel de administración, nodo 2) | `15673` | — | `http://localhost:15673` |
 | `mysql` | `3307` (mapeado al `3306` del contenedor) | — | — |
 | `frontend` (opcional, profile `frontend`) | `80` | — | `http://localhost` |
 
@@ -111,23 +112,44 @@ Ejemplo: `GET http://localhost:8090/catalog/api/catalog` llega a `catalog` como 
 
 ## 6. RabbitMQ
 
-### 6.1 Credenciales de desarrollo
+### 6.1 Clúster (2 nodos)
 
-Usuario `pedidos`, contraseña `1234` (mismos valores que `RABBITMQ_DEFAULT_USER`/`RABBITMQ_DEFAULT_PASS` en `docker-compose.yml`). Panel de administración en `http://localhost:15672`, protocolo AMQP en el puerto `5672`.
+RabbitMQ corre como un **clúster de 2 nodos** para esta evaluación: `rabbitmq` (nodo 1) y `rabbitmq2` (nodo 2). Ambos comparten el mismo `RABBITMQ_ERLANG_COOKIE` (requisito para que dos nodos puedan formar un clúster) y tienen `hostname` fijo (`rabbitmq`/`rabbitmq2`), porque el nombre del nodo de Erlang se deriva del hostname (`rabbit@rabbitmq`, `rabbit@rabbitmq2`).
 
-### 6.2 Topología
+El nodo 2 se une al clúster solo mediante su propio `command` en `docker-compose.yml` (sin pasos manuales): arranca `rabbitmq-server -detached`, espera a que el nodo esté listo (`rabbitmqctl await_startup`), y luego hace `stop_app` → `join_cluster rabbit@rabbitmq` → `start_app`.
 
-- Exchange `cmd.direct` (direct) → cola `q.cmd.email`, con routing key `email.send`.
-- Exchange de errores `cmd.dead.dlx` (direct) → cola de dead letter `q.cmd.email.dlq`.
+Todas las colas de negocio (y sus DLQ) son **colas quorum** (`x-queue-type: quorum`), que es el tipo de cola replicado entre nodos en RabbitMQ moderno — las colas clásicas no replican. Las colas quorum son compatibles con `x-dead-letter-exchange`: el dead-lettering funciona igual que con colas clásicas.
 
-### 6.3 Flujo
+Los microservicios (`orders`, `notify`, `rabbit-admin`) se conectan con **ambas direcciones** (`spring.rabbitmq.addresses: rabbitmq:5672,rabbitmq2:5672`), para seguir funcionando si uno de los dos nodos no está disponible.
 
-1. `orders` publica un evento al exchange `cmd.direct` (routing key `email.send`) cuando se crea un pedido.
-2. `notify` consume el evento desde `q.cmd.email` con **confirmación manual** (ack/nack).
-3. Si el error es **no recuperable** (por ejemplo, el evento no trae `clienteEmail`), `notify` hace `nack` sin reencolar y el mensaje cae en `q.cmd.email.dlq`.
-4. Si el error es **transitorio** (simulado), `notify` reintenta un número limitado de veces antes de, si persiste, enviarlo también a la DLQ.
+- Paneles: nodo 1 en `http://localhost:15672`, nodo 2 en `http://localhost:15673` (mismas credenciales en ambos, es el mismo clúster).
+- Verificar el clúster: `docker exec ms-pedidos360-bff-rabbitmq-1 rabbitmqctl cluster_status`.
 
-### 6.4 Endpoints de `rabbit-admin` (solo rol Admin)
+### 6.2 Credenciales de desarrollo
+
+Usuario `pedidos`, contraseña `1234` (mismos valores que `RABBITMQ_DEFAULT_USER`/`RABBITMQ_DEFAULT_PASS` en `docker-compose.yml`, iguales en los dos nodos). AMQP en el puerto `5672` (nodo 1); el nodo 2 no expone AMQP al host, solo se usa dentro de la red de Docker.
+
+### 6.3 Topología
+
+Dos exchanges de negocio y uno de errores, con tres colas (todas quorum, cada una con su propia DLQ):
+
+| Exchange | Tipo | Cola | Routing key | DLQ |
+|---|---|---|---|---|
+| `cmd.direct` | direct | `q.cmd.email` | `email.send` | `q.cmd.email.dlq` |
+| `cmd.direct` | direct | `q.cmd.ticket` | `ticket.generate` | `q.cmd.ticket.dlq` |
+| `evt.topic` | topic | `q.evt.stock` | patrón `pedido.creado.#` (orders publica con `pedido.creado.nuevo`) | `q.evt.stock.dlq` |
+
+El exchange de errores `cmd.dead.dlx` (direct) recibe las 3 DLQ, cada una enlazada con la routing key original del mensaje (`email.send`, `ticket.generate`, `pedido.creado.nuevo`).
+
+### 6.4 Flujo
+
+1. `orders` publica **3 eventos** (mismo envelope, 3 destinos) cuando se crea un pedido: notificación por correo, generación de ticket y reserva de stock simulada.
+2. `notify` tiene **3 consumidores independientes**, uno por dominio (`consumer/email`, `consumer/ticket`, `consumer/stock`), cada uno con **confirmación manual** (ack/nack).
+3. Si el error es **no recuperable** (por ejemplo, el evento no trae el dato mínimo requerido), el consumidor hace `nack` sin reencolar y el mensaje cae en su DLQ.
+4. Si el error es **transitorio** (simulado), el consumidor reintenta un número limitado de veces antes de, si persiste, enviarlo también a su DLQ.
+5. Cada DLQ tiene su propio consumidor que solo registra el mensaje en log (no reprocesa).
+
+### 6.5 Endpoints de `rabbit-admin` (solo rol Admin)
 
 | Método y ruta | Respuesta |
 |---|---|
@@ -139,19 +161,26 @@ Usuario `pedidos`, contraseña `1234` (mismos valores que `RABBITMQ_DEFAULT_USER
 | `POST /api/bindings` | `201` |
 | `DELETE /api/bindings?queue=&exchange=&routingKey=` | `204` |
 
-Los errores de validación devuelven `400` con el formato `{"errors":[{"field": "...", "message": "..."}]}`. Los nombres que empiezan con `amq.` están reservados por RabbitMQ y se rechazan. Si se intenta declarar una cola o exchange que ya existe con argumentos distintos, responde `409`.
+Los errores de validación devuelven `400` con el formato `{"errors":[{"field": "...", "message": "..."}]}`. Los nombres que empiezan con `amq.` están reservados por RabbitMQ y se rechazan. Si se intenta declarar una cola o exchange que ya existe con argumentos distintos, responde `409`. Esto sigue funcionando igual con el clúster activo (`rabbit-admin` administra recursos propios de prueba, no las colas quorum de negocio).
 
-### 6.5 Cómo probarlo
+### 6.6 Cómo probarlo
 
-1. **Caso exitoso:** crea un pedido con `POST /api/orders` (ver sección de [Roles y permisos](#72-roles-y-permisos) para el token) y revisa el log del consumidor con:
+1. **Caso exitoso:** crea un pedido con `POST /api/orders` (ver [Roles y permisos](#71-roles-y-permisos) para el token) y revisa los 3 consumidores con:
    ```bash
    docker compose logs -f notify
    ```
-2. **Caso de error (va a la DLQ):** entra al panel (`http://localhost:15672`), abre el exchange `cmd.direct` → `Publish message`, usa la routing key `email.send`, `content_type: application/json`, y un body con `clienteEmail` vacío, por ejemplo:
-   ```json
-   {"eventId":"test-1","type":"PEDIDO_CREADO","timestamp":"2026-01-01T00:00:00Z","correlationId":"test-1","pedido":{"id":1,"clienteEmail":"","estado":"PENDIENTE"}}
-   ```
-   El mensaje debería terminar en `q.cmd.email.dlq` (verificable en el panel o con `GET /api/queues/q.cmd.email.dlq` vía `rabbit-admin`).
+2. **Caso de error por cada cola (termina en su DLQ):** en el panel (`http://localhost:15672`), `Publish message` con `content_type: application/json` y un body sin el dato mínimo requerido:
+   - Exchange `cmd.direct`, routing key `email.send` → cae en `q.cmd.email.dlq` (payload sin `clienteEmail`):
+     ```json
+     {"eventId":"test-1","type":"PEDIDO_CREADO","timestamp":"2026-01-01T00:00:00Z","correlationId":"test-1","pedido":{"id":1,"clienteEmail":"","estado":"PENDIENTE"}}
+     ```
+   - Exchange `cmd.direct`, routing key `ticket.generate` → cae en `q.cmd.ticket.dlq` (payload sin `id` de pedido):
+     ```json
+     {"eventId":"test-2","type":"PEDIDO_CREADO","timestamp":"2026-01-01T00:00:00Z","correlationId":"test-2","pedido":{"id":null,"clienteEmail":"cliente@correo.cl","estado":"PENDIENTE"}}
+     ```
+   - Exchange `evt.topic`, routing key `pedido.creado.nuevo` → cae en `q.evt.stock.dlq` (mismo payload sin `id`).
+
+   Verificable en el panel o con `GET /api/queues/q.cmd.email.dlq` (o `q.cmd.ticket.dlq` / `q.evt.stock.dlq`) vía `rabbit-admin`.
 
 ## 7. Seguridad
 

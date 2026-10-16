@@ -24,6 +24,8 @@ services:
       # TODO: cambiar este usuario/clave antes de usar en produccion
       RABBITMQ_DEFAULT_USER: pedidos
       RABBITMQ_DEFAULT_PASS: 1234
+      # TODO: cambiar esta cookie antes de usar en produccion. Debe ser identica en rabbitmq y rabbitmq2.
+      RABBITMQ_ERLANG_COOKIE: pedidos360clustercookie
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     ports:
@@ -35,6 +37,43 @@ services:
       timeout: 10s
       retries: 10
       start_period: 30s
+
+  rabbitmq2:
+    image: rabbitmq:3-management
+    hostname: rabbitmq2
+    environment:
+      RABBITMQ_DEFAULT_USER: pedidos
+      RABBITMQ_DEFAULT_PASS: 1234
+      RABBITMQ_ERLANG_COOKIE: pedidos360clustercookie
+    volumes:
+      - rabbitmq2_data:/var/lib/rabbitmq
+    ports:
+      - "15673:15672"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    # Arranca el nodo, espera a que este listo y se une al cluster del nodo 1.
+    # "|| true" en join_cluster: si el contenedor se reinicia sin perder el volumen
+    # y ya esta clusterizado, join_cluster fallaria; igual se reinicia la app.
+    command:
+      - bash
+      - -c
+      - |
+        rabbitmq-server -detached
+        for i in $(seq 1 30); do
+          rabbitmqctl await_startup -t 5 >/dev/null 2>&1 && break
+          sleep 2
+        done
+        rabbitmqctl stop_app
+        rabbitmqctl join_cluster rabbit@rabbitmq || true
+        rabbitmqctl start_app
+        tail -f /dev/null
 
   backend:
     build:
@@ -60,12 +99,14 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      rabbitmq2:
+        condition: service_healthy
     restart: on-failure
     environment:
       DB_URL: jdbc:mysql://mysql:3306/pedidos360
       DB_USERNAME: root
       DB_PASSWORD: 1234
-      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_ADDRESSES: "rabbitmq:5672,rabbitmq2:5672"
 
   notify:
     build:
@@ -73,9 +114,11 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      rabbitmq2:
+        condition: service_healthy
     restart: on-failure
     environment:
-      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_ADDRESSES: "rabbitmq:5672,rabbitmq2:5672"
 
   rabbit-admin:
     build:
@@ -85,9 +128,11 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      rabbitmq2:
+        condition: service_healthy
     restart: on-failure
     environment:
-      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_ADDRESSES: "rabbitmq:5672,rabbitmq2:5672"
 
   catalog:
     build:
@@ -133,3 +178,4 @@ services:
 volumes:
   mysql_data:
   rabbitmq_data:
+  rabbitmq2_data:
