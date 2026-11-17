@@ -8,13 +8,14 @@
 #   docker compose -f docker-compose.yml -f docker-compose.kafka.yml up -d --build
 #
 # Bajar SOLO lo de Kafka, dejando el resto corriendo:
-#   docker compose -f docker-compose.yml -f docker-compose.kafka.yml stop zookeeper kafka1 kafka2 kafka-ui
-#   docker compose -f docker-compose.yml -f docker-compose.kafka.yml rm -f zookeeper kafka1 kafka2 kafka-ui
+#   docker compose -f docker-compose.yml -f docker-compose.kafka.yml stop zookeeper kafka1 kafka2 kafka-ui kafka-admin
+#   docker compose -f docker-compose.yml -f docker-compose.kafka.yml rm -f zookeeper kafka1 kafka2 kafka-ui kafka-admin
 #
 # Puertos publicados al host:
-#   - kafka1:   9092 (listener PLAINTEXT_HOST)
-#   - kafka2:   9094 (listener PLAINTEXT_HOST)
-#   - kafka-ui: 8089
+#   - kafka1:       9092 (listener PLAINTEXT_HOST)
+#   - kafka2:       9094 (listener PLAINTEXT_HOST)
+#   - kafka-ui:     8089
+#   - kafka-admin:  8091
 #   zookeeper no publica ningun puerto al host (solo uso interno entre brokers).
 
 services:
@@ -109,6 +110,20 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:29092,kafka2:29092
     ports:
       - "8089:8080"
+
+  kafka-admin:
+    build:
+      context: ./ms-pedidos360-kafka-admin
+    ports:
+      - "8091:8091"
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+    restart: on-failure
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29092"
 
 volumes:
   zookeeper_data:
