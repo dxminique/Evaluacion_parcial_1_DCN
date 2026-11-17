@@ -26,6 +26,23 @@ spring:
     addresses: ${RABBITMQ_ADDRESSES:localhost:5672}
     username: ${RABBITMQ_USER:pedidos}
     password: ${RABBITMQ_PASSWORD:1234}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      retries: 5
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+        # Si Kafka esta caido, que no demore la peticion: max.block.ms acota cuanto
+        # puede bloquear send() esperando metadata; delivery.timeout.ms acota el total
+        # de reintentos. Debe cumplirse delivery.timeout.ms >= linger.ms + request.timeout.ms
+        # (linger.ms no se fija, default 0): 5000 >= 0 + 2000.
+        max.block.ms: 1000
+        request.timeout.ms: 2000
+        delivery.timeout.ms: 5000
+        spring.json.add.type.headers: false
 
 app:
   rabbit:
@@ -42,3 +59,7 @@ app:
     stock-routing-key: pedido.creado.nuevo
     stock-binding-pattern: pedido.creado.#
     stock-dlq: q.evt.stock.dlq
+  kafka:
+    topics:
+      pedido-creado: pedidos.creados
+      pedido-estado: pedidos.estado

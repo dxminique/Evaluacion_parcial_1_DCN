@@ -17,6 +17,14 @@
 #   - kafka-ui:     8089
 #   - kafka-admin:  8091
 #   zookeeper no publica ningun puerto al host (solo uso interno entre brokers).
+#
+# El bloque "orders" de este archivo es un OVERRIDE del servicio ya definido en
+# docker-compose.yml: Compose fusiona ambos, asi que solo agrega la variable
+# KAFKA_BOOTSTRAP_SERVERS sin tocar su build/ports/depends_on/demas env vars.
+# A proposito NO se agrega depends_on hacia kafka1/kafka2: el stack principal
+# (sin este archivo) debe seguir arrancando orders sin Kafka, exactamente igual
+# que hoy. Si Kafka esta caido, orders registra el fallo por log y sigue
+# publicando en RabbitMQ y respondiendo 201 igual (ver KafkaProducerConfig).
 
 services:
   zookeeper:
@@ -122,6 +130,10 @@ services:
       kafka2:
         condition: service_healthy
     restart: on-failure
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29092"
+
+  orders:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29092"
 
