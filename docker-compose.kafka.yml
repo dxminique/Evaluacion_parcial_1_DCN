@@ -8,14 +8,15 @@
 #   docker compose -f docker-compose.yml -f docker-compose.kafka.yml up -d --build
 #
 # Bajar SOLO lo de Kafka, dejando el resto corriendo:
-#   docker compose -f docker-compose.yml -f docker-compose.kafka.yml stop zookeeper kafka1 kafka2 kafka-ui kafka-admin
-#   docker compose -f docker-compose.yml -f docker-compose.kafka.yml rm -f zookeeper kafka1 kafka2 kafka-ui kafka-admin
+#   docker compose -f docker-compose.yml -f docker-compose.kafka.yml stop zookeeper kafka1 kafka2 kafka-ui kafka-admin analytics
+#   docker compose -f docker-compose.yml -f docker-compose.kafka.yml rm -f zookeeper kafka1 kafka2 kafka-ui kafka-admin analytics
 #
 # Puertos publicados al host:
 #   - kafka1:       9092 (listener PLAINTEXT_HOST)
 #   - kafka2:       9094 (listener PLAINTEXT_HOST)
 #   - kafka-ui:     8089
 #   - kafka-admin:  8091
+#   - analytics:    8092
 #   zookeeper no publica ningun puerto al host (solo uso interno entre brokers).
 #
 # El bloque "orders" de este archivo es un OVERRIDE del servicio ya definido en
@@ -134,6 +135,20 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29092"
 
   orders:
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29092"
+
+  analytics:
+    build:
+      context: ./ms-pedidos360-analytics
+    ports:
+      - "8092:8092"
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+    restart: on-failure
     environment:
       KAFKA_BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29092"
 

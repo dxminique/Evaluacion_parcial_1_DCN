@@ -17,6 +17,7 @@ La solución cuenta con un frontend para la interacción con los usuarios, un Ba
 - **ms-pedidos360-catalog:** administra productos, stock y precios.
 - **ms-pedidos360-orders:** administra la creación, consulta y actualización de pedidos y sus estados; publica un evento en RabbitMQ al crear un pedido.
 - **ms-pedidos360-notify:** consume el evento de pedido creado y simula el envío de un correo (con reintentos y dead-letter queue).
+- **ms-pedidos360-analytics:** consume eventos Kafka de pedidos en tres grupos independientes, con reintentos y dead-letter topics.
 - **ms-pedidos360-rabbit-admin:** administra colas, exchanges y bindings de RabbitMQ vía API REST (solo rol Admin).
 - **api-gateway:** proxy nginx local que enruta a catalog, orders, rabbit-admin y al bff bajo un único puerto (8090), para probar con Postman sin el API Gateway de AWS.
 
@@ -25,6 +26,7 @@ La solución cuenta con un frontend para la interacción con los usuarios, un Ba
 | `ms-pedidos360-orders` | MySQL | CRUD de pedidos y estados: `/api/orders/*` |
 | `ms-pedidos360-catalog` | MySQL | CRUD de productos, stock y precios: `/api/catalog/*` |
 | `ms-pedidos360-notify` | sin persistencia | Consumidor RabbitMQ de notificaciones de pedido |
+| `ms-pedidos360-analytics` | sin persistencia | Consumidores Kafka de eventos de pedidos |
 | `ms-pedidos360-rabbit-admin` | sin persistencia | Administración de RabbitMQ: `/api/queues`, `/api/exchanges`, `/api/bindings` |
 | `ms-pedidos360-bff` | MySQL | Backend for Frontend |
 
@@ -167,7 +169,7 @@ Los errores de validación devuelven `400` con el formato `{"errors":[{"field": 
 
 ### 6.6 Cómo probarlo
 
-1. **Caso exitoso:** crea un pedido con `POST /api/orders` (ver [Roles y permisos](#71-roles-y-permisos) para el token) y revisa los 3 consumidores con:
+1. **Caso exitoso:** crea un pedido con `POST /api/orders` (ver [Roles y permisos](#81-roles-y-permisos) para el token) y revisa los 3 consumidores con:
    ```bash
    docker compose logs -f notify
    ```
@@ -184,11 +186,25 @@ Los errores de validación devuelven `400` con el formato `{"errors":[{"field": 
 
    Verificable en el panel o con `GET /api/queues/q.cmd.email.dlq` (o `q.cmd.ticket.dlq` / `q.evt.stock.dlq`) vía `rabbit-admin`.
 
-## 7. Seguridad
+## 7. Kafka y analytics
+
+Kafka se levanta junto al compose principal usando los dos archivos indicados en la seccion 5. El servicio `analytics` consume `pedidos.creados` y `pedidos.estado` con tres grupos independientes: `analytics-dashboard`, `analytics-ventas` y `analytics-auditoria`. Cada grupo recibe una copia de todos los eventos.
+
+Los eventos con JSON invalido o campos obligatorios invalidos se envian directamente a `pedidos.creados.DLT` o `pedidos.estado.DLT`. Los errores recuperables se reintentan tres veces con una pausa de un segundo y luego van al DLT.
+
+Para revisar el consumo y los grupos:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.kafka.yml logs -f analytics
+```
+
+Kafka UI queda disponible en `http://localhost:8089`; `analytics` expone health en `http://localhost:8092/actuator/health`.
+
+## 8. Seguridad
 
 Cada microservicio (`catalog`, `orders`, `rabbit-admin`, `bff`) valida de forma independiente el JWT emitido por Azure AD: firma contra el JWK Set de Azure AD v2, `issuer` esperado en formato v1 (`https://sts.windows.net/<tenant>/`), `audience` esperada (`api://6fc9e12e-949d-4672-8126-89ab30c6f757`), y los roles se leen del claim `roles` del token, convertidos a authorities `ROLE_*` de Spring Security. El API Gateway local **no** valida nada de esto; solo reenvía la cabecera `Authorization` tal cual la mande el cliente.
 
-### 7.1 Roles y permisos
+### 8.1 Roles y permisos
 
 | Servicio | Operación | Roles permitidos | Rol sin permiso |
 |---|---|---|---|
@@ -204,7 +220,7 @@ Cómo leer las respuestas:
 - **`401`**: no se envió token, el token es inválido, expiró, o el `issuer`/`audience` no coinciden con lo esperado.
 - **`403`**: el token es válido, pero el rol del usuario no tiene permiso para esa operación puntual.
 
-### 7.2 Usuarios de prueba
+### 8.2 Usuarios de prueba
 
 | Usuario (correo completo) | Contraseña | Rol |
 |---|---|---|
@@ -214,7 +230,7 @@ Cómo leer las respuestas:
 
 Estas son cuentas de prueba del tenant `ejemploduoc123.onmicrosoft.com` creadas solo para evaluar el proyecto. El usuario es el correo completo y la contraseña incluye el `@` inicial.
 
-### 7.3 Cómo obtener un token para Postman
+### 8.3 Cómo obtener un token para Postman
 
 ```
 POST https://login.microsoftonline.com/ejemploduoc123.onmicrosoft.com/oauth2/v2.0/token
@@ -229,7 +245,7 @@ password=<contraseña de la tabla de usuarios de prueba>
 
 El `access_token` de la respuesta se envía en cada request como `Authorization: Bearer <token>`. Dura aproximadamente **1 hora**; si expira, hay que pedir uno nuevo. Para probar los distintos niveles de acceso, pide un token por cada usuario de la tabla de arriba (uno para Admin, otro para Operador, otro para Cliente).
 
-### 7.4 Probar con Postman
+### 8.4 Probar con Postman
 
 1. Importar `docs/postman/Pedidos360_Postman_Roles.postman_collection.json`.
 2. Verificar la variable `base = http://localhost:8090`.
@@ -244,7 +260,7 @@ Resultados esperados:
 
 Los tokens duran cerca de **1 hora**; si una corrida falla con `401` a mitad de camino, vuelve a ejecutar la carpeta "0. Tokens" para renovarlos.
 
-## 8. Comandos útiles
+## 9. Comandos útiles
 
 ```bash
 # Ver el estado de todos los servicios
@@ -269,7 +285,7 @@ mvn -q compile
 mvn -q test
 ```
 
-## 9. Pruebas
+## 10. Pruebas
 
 Con el backend levantado (`docker compose up -d --build`), sin token todas estas llamadas deben responder `401` (no `404` ni `502`):
 
@@ -286,22 +302,22 @@ Y esta debe responder `200` sin token, porque es pública:
 curl -i http://localhost:8090/rabbit-admin/actuator/health
 ```
 
-Con un token válido (ver [Cómo obtener un token para Postman](#73-cómo-obtener-un-token-para-postman)), agrega la cabecera `Authorization: Bearer <token>` y compara el resultado contra la tabla de [Roles y permisos](#71-roles-y-permisos) según el rol del usuario usado.
+Con un token válido (ver [Cómo obtener un token para Postman](#83-cómo-obtener-un-token-para-postman)), agrega la cabecera `Authorization: Bearer <token>` y compara el resultado contra la tabla de [Roles y permisos](#81-roles-y-permisos) según el rol del usuario usado.
 
-## 10. Problemas comunes
+## 11. Problemas comunes
 
 | Síntoma | Causa probable | Solución |
 |---|---|---|
 | `rabbitmq` termina en `exited (1)` | Volumen (`rabbitmq_data`) con datos de una ejecución anterior incompatible (identidad del nodo, cookie de Erlang) | `docker compose down -v` y volver a levantar con `docker compose up -d --build` (solo en este caso puntual) |
 | `catalog`/`orders` se reinician o fallan al arrancar | Intentaron conectarse a MySQL antes de que estuviera listo | Ya hay `healthcheck` en `mysql` y `depends_on: condition: service_healthy`; si persiste, revisa `docker compose logs mysql` |
-| `401` inesperado en Postman | El token expiró (dura ~1 hora) | Pide un token nuevo (sección 7.3) |
-| `403` en una operación que debería funcionar | El rol del usuario no tiene permiso para esa operación | Revisa la tabla de [Roles y permisos](#71-roles-y-permisos) y usa un usuario con el rol correcto |
+| `401` inesperado en Postman | El token expiró (dura ~1 hora) | Pide un token nuevo (sección 8.3) |
+| `403` en una operación que debería funcionar | El rol del usuario no tiene permiso para esa operación | Revisa la tabla de [Roles y permisos](#81-roles-y-permisos) y usa un usuario con el rol correcto |
 | `PRECONDITION_FAILED` al crear una cola/exchange en `rabbit-admin` | Ya existe un recurso con ese nombre pero con argumentos distintos (`durable`, `autoDelete`, dead-letter, etc.) | Elimina el recurso existente o usa otro nombre |
 | Mensaje marcado como "published, but not routed" en el panel de RabbitMQ | La routing key no es `email.send`, o se publicó contra un exchange distinto a `cmd.direct` | Revisa la routing key y el exchange usados al publicar |
 
-## 11. Consideraciones
+## 12. Consideraciones
 
 - **Datos de prueba:** `catalog` y `orders` insertan automáticamente datos de ejemplo al arrancar (`data.sql`): 3 productos en `catalog` y 2 pedidos en `orders`. Las inserciones son idempotentes (no se duplican si el servicio se reinicia).
 - **`docker compose down -v`:** no lo uses en el uso normal, porque borra los datos de MySQL y de RabbitMQ. Resérvalo para el caso puntual en que `rabbitmq` no arranca por un volumen viejo (ver [Problemas comunes](#10-problemas-comunes)).
 - **Credenciales de desarrollo:** las contraseñas de MySQL y RabbitMQ en `docker-compose.yml` (`1234`) son solo para entorno local/evaluación y están marcadas con `TODO` para cambiarlas antes de un uso productivo real.
-- **Tokens:** este README no incluye ningún token de acceso. Las únicas credenciales que contiene son las contraseñas de las cuentas de prueba de la sección 7.2, exclusivamente para fines de evaluación del proyecto.
+- **Tokens:** este README no incluye ningún token de acceso. Las únicas credenciales que contiene son las contraseñas de las cuentas de prueba de la sección 8.2, exclusivamente para fines de evaluación del proyecto.
