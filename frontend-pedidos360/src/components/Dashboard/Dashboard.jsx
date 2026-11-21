@@ -57,7 +57,13 @@ export default function Dashboard() {
             <h1 id="dashboard-title" style={styles.welcomeTitle}>Hola, {account?.name?.split(" ")[0] || "bienvenido"}</h1>
             <p style={styles.welcomeEmail}>Aquí tienes un resumen del estado actual de Pedidos360.</p>
           </div>
-          <div className="dashboard-welcome-mark" aria-hidden="true"><span>360</span></div>
+          <div className="dashboard-welcome-mark" aria-hidden="true">
+            <svg className="dashboard-order-icon" viewBox="0 0 64 64" fill="none">
+              <path d="M32 7 54 19.5v25L32 57 10 44.5v-25L32 7Z" />
+              <path d="m10.5 20 21.5 12 21.5-12M32 32v24M21 13.5 43 26v12" />
+              <path d="M5 29h9M3 36h9" />
+            </svg>
+          </div>
         </section>
 
         <div className="dashboard-stats" style={styles.grid}>
