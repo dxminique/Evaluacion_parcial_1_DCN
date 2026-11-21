@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useMsal } from "@azure/msal-react";
 import { catalogApi, ordersApi } from "../../services/api";
 import AppNavigation from "../Navigation/AppNavigation";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useRoles } from "../../auth/useRoles";
 
 export default function Dashboard() {
   const { accounts } = useMsal();
   const account = accounts[0];
-  const { esCliente } = useRoles();
+  const { esCliente, esAdminOOperador } = useRoles();
   const [catalogStatus, setCatalogStatus] = useState("—");
   const [ordersStatus, setOrdersStatus] = useState("—");
 
@@ -37,6 +37,12 @@ export default function Dashboard() {
   }, []);
 
   const roles = account?.idTokenClaims?.roles?.join(", ") || "Sin rol asignado";
+  const fechaActual = new Intl.DateTimeFormat("es-CL", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
 
   if (esCliente) return <Navigate to="/catalogo" replace />;
 
@@ -44,26 +50,55 @@ export default function Dashboard() {
     <div className="dashboard-page" style={styles.page}>
       <AppNavigation activePage="dashboard" />
       <main className="dashboard-main" style={styles.main}>
-        <div className="dashboard-welcome" style={styles.welcomeCard}>
-          <p className="welcome-eyebrow">RESUMEN DE OPERACIONES</p>
-          <h1 style={styles.welcomeTitle}>Bienvenido, {account?.name}</h1>
-          <p style={styles.welcomeEmail}>{account?.username} · Este es el estado actual de tu operación.</p>
-        </div>
+        <div className="dashboard-date">{fechaActual}</div>
+        <section className="dashboard-welcome" style={styles.welcomeCard} aria-labelledby="dashboard-title">
+          <div className="dashboard-welcome-copy">
+            <p className="welcome-eyebrow">CENTRO DE OPERACIONES</p>
+            <h1 id="dashboard-title" style={styles.welcomeTitle}>Hola, {account?.name?.split(" ")[0] || "bienvenido"}</h1>
+            <p style={styles.welcomeEmail}>Aquí tienes un resumen del estado actual de Pedidos360.</p>
+          </div>
+          <div className="dashboard-welcome-mark" aria-hidden="true"><span>360</span></div>
+        </section>
 
         <div className="dashboard-stats" style={styles.grid}>
-          <div className="dashboard-stat-card" style={styles.statCard}>
-            <p style={styles.statLabel}>Pedidos activos</p>
+          <article className="dashboard-stat-card dashboard-stat-orders" style={styles.statCard}>
+            <div className="dashboard-stat-heading"><span className="dashboard-stat-icon" aria-hidden="true">↗</span><p style={styles.statLabel}>Pedidos</p></div>
             <p style={styles.statValue}>{ordersStatus}</p>
-          </div>
-          <div className="dashboard-stat-card" style={styles.statCard}>
-            <p style={styles.statLabel}>Stock crítico</p>
+            <span className="dashboard-stat-caption">Actividad registrada</span>
+          </article>
+          <article className="dashboard-stat-card dashboard-stat-catalog" style={styles.statCard}>
+            <div className="dashboard-stat-heading"><span className="dashboard-stat-icon" aria-hidden="true">▦</span><p style={styles.statLabel}>Catálogo</p></div>
             <p style={styles.statValue}>{catalogStatus}</p>
-          </div>
-          <div className="dashboard-stat-card" style={styles.statCard}>
-            <p style={styles.statLabel}>Rol</p>
+          </article>
+          <article className="dashboard-stat-card dashboard-stat-role" style={styles.statCard}>
+            <div className="dashboard-stat-heading"><span className="dashboard-stat-icon" aria-hidden="true">◎</span><p style={styles.statLabel}>Tu perfil</p></div>
             <p style={styles.statValue}>{roles}</p>
-          </div>
+            <span className="dashboard-stat-caption">Acceso habilitado</span>
+          </article>
         </div>
+
+        <section className="dashboard-shortcuts" aria-labelledby="shortcuts-title">
+          <div className="dashboard-section-heading">
+            <div><p className="page-eyebrow">ACCESO RÁPIDO</p><h2 id="shortcuts-title">¿Qué necesitas hacer?</h2></div>
+            <span>Gestiona tu operación en un solo lugar</span>
+          </div>
+          <div className="dashboard-shortcut-grid">
+            {esAdminOOperador ? (
+              <Link className="dashboard-shortcut-card" to="/productos">
+                <span className="shortcut-icon" aria-hidden="true">＋</span>
+                <span><strong>Administrar productos</strong><small>Actualiza precios, stock y catálogo</small></span>
+                <span className="shortcut-arrow" aria-hidden="true">→</span>
+              </Link>
+            ) : (
+              <Link className="dashboard-shortcut-card" to="/catalogo">
+                <span className="shortcut-icon" aria-hidden="true">⌕</span>
+                <span><strong>Explorar catálogo</strong><small>Encuentra productos disponibles</small></span>
+                <span className="shortcut-arrow" aria-hidden="true">→</span>
+              </Link>
+            )}
+            <div className="dashboard-shortcut-note"><span aria-hidden="true">✦</span><p><strong>Todo bajo control</strong><small>Consulta el estado de tus servicios desde este panel.</small></p></div>
+          </div>
+        </section>
       </main>
     </div>
   );
