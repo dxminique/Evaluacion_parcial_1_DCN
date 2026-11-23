@@ -75,21 +75,17 @@ cd ms-pedidos360-bff
 docker compose -f docker-compose.yml -f docker-compose.kafka.yml up -d --build
 ```
 
-Este comando levanta **todo el backend, incluyendo Kafka** (15 contenedores): los 9 servicios originales (`mysql`, `rabbitmq`, `rabbitmq2`, `backend` (bff), `catalog`, `orders`, `notify`, `rabbit-admin`, `api-gateway` en el puerto `8090`) más `zookeeper`, `kafka1`, `kafka2`, `kafka-ui`, `kafka-admin` y `analytics`. No se necesita ningún paso manual adicional ni certificados.
+Este comando levanta **todo, incluyendo Kafka y el frontend** (16 contenedores): los 10 servicios originales (`mysql`, `rabbitmq`, `rabbitmq2`, `backend` (bff), `catalog`, `orders`, `notify`, `rabbit-admin`, `api-gateway` en el puerto `8090`, `frontend` en el puerto `80`) más `zookeeper`, `kafka1`, `kafka2`, `kafka-ui`, `kafka-admin` y `analytics`. No se necesita ningún paso manual adicional ni certificados: el `frontend` se levanta por defecto (sin `--profile`) y queda disponible en `http://localhost`.
 
-Si no se necesita Kafka (por ejemplo, para probar solo RabbitMQ y las APIs REST), se puede omitir el segundo `-f` y levantar solo los 9 servicios originales:
+Si no se necesita Kafka (por ejemplo, para probar solo RabbitMQ y las APIs REST), se puede omitir el segundo `-f` y levantar solo los 10 servicios originales (incluye igual el `frontend`):
 
 ```bash
 docker compose up -d --build
 ```
 
-El **frontend es opcional** y no es necesario para evaluar el backend con Postman. Si se quiere levantar igual:
+El `frontend` ya viene incluido en ambos comandos de arriba (no necesita token ni backend levantado para servir su HTML; las llamadas a `catalog`/`orders` sí requieren el backend). Si se prefiere, también se puede levantar en modo desarrollo, sin Docker (requiere su propio `frontend-pedidos360/.env`, no versionado, con las URLs de catalog/orders):
 
 ```bash
-# Dentro de Docker (requiere certificados HTTPS vía docker-compose.override.yml, no versionado):
-docker compose --profile frontend up -d --build
-
-# O en modo desarrollo, sin Docker (requiere su propio frontend-pedidos360/.env, no versionado, con las URLs de catalog/orders):
 cd frontend-pedidos360
 npm install
 npm run dev
@@ -104,6 +100,8 @@ docker compose -f docker-compose.yml -f docker-compose.kafka.yml down
 
 > No uses `docker compose down -v` en el uso normal: borra los datos de MySQL, RabbitMQ y Kafka. Solo tiene sentido si RabbitMQ no levanta por un volumen viejo (ver [Problemas comunes](#10-problemas-comunes)).
 
+> Si existe un `docker-compose.override.yml` local (no versionado, solo para el despliegue real en `pedidos360-duocuc.duckdns.org`) no es necesario para nada de lo anterior; de hecho, al estar desactualizado respecto al `Dockerfile` actual (que ya no usa el `nginx.conf` con bloque HTTPS), no debe pasarse con `-f` en este entorno.
+
 ### 5.1 Puertos y rutas
 
 | Servicio | Puerto host | Ruta vía API Gateway local (`:8090`) | Ruta directa |
@@ -117,7 +115,7 @@ docker compose -f docker-compose.yml -f docker-compose.kafka.yml down
 | `rabbitmq` (panel de administración, nodo 1) | `15672` | — | `http://localhost:15672` |
 | `rabbitmq2` (panel de administración, nodo 2) | `15673` | — | `http://localhost:15673` |
 | `mysql` | `3307` (mapeado al `3306` del contenedor) | — | — |
-| `frontend` (opcional, profile `frontend`) | `80` | — | `http://localhost` |
+| `frontend` | `80` | — | `http://localhost` |
 
 Ejemplo: `GET http://localhost:8090/catalog/api/catalog` llega a `catalog` como `GET /api/catalog` (el prefijo `/catalog/` se descarta al reenviar). Lo mismo aplica para `/orders/...` y `/rabbit-admin/...`. La ruta `/` sin prefijo va directa al `bff`.
 

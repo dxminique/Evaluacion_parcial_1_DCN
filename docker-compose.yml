@@ -165,7 +165,6 @@ services:
     restart: on-failure
 
   frontend:
-    profiles: ["frontend"]
     build:
       context: ./frontend-pedidos360
       args:
@@ -174,6 +173,11 @@ services:
         VITE_ORDERS_URL: http://localhost:8087
     ports:
       - "80:80"
+    depends_on:
+      catalog:
+        condition: service_started
+      orders:
+        condition: service_started
 
 volumes:
   mysql_data:
