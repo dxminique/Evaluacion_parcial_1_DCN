@@ -64,6 +64,14 @@
     {
       "key": "producto_id_operador",
       "value": ""
+    },
+    {
+      "key": "kafkaAdminBase",
+      "value": "http://localhost:8091"
+    },
+    {
+      "key": "pedido_kafka_id",
+      "value": ""
     }
   ],
   "item": [
@@ -1210,6 +1218,400 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"clienteEmail\": \"cliente@test.com\",\n  \"descripcion\": \"Pedido de prueba RabbitMQ\",\n  \"total\": 25000\n}"
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_admin}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "6 — Kafka",
+      "description": "Endpoints reales de ms-pedidos360-kafka-admin (puerto 8091, directo, no pasa por el api-gateway) mas el flujo de eventos orders -> Kafka -> analytics. Ejecutar despues de la carpeta 0 (Tokens). kafka-admin solo expone gestion de topicos y consumer groups; no existe un endpoint para crear/modificar/eliminar ACLs ni para forzar un rebalance, asi que no se incluyen pruebas de eso.",
+      "item": [
+        {
+          "name": "GET listar topicos (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"incluye pedidos.creados y pedidos.estado\", function () {",
+                  "  var topicos = pm.response.json();",
+                  "  pm.expect(topicos).to.include(\"pedidos.creados\");",
+                  "  pm.expect(topicos).to.include(\"pedidos.estado\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Lista los nombres de todos los topicos del cluster (GET /api/kafka/topics en TopicController).",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/topics",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "topics"]
+            }
+          }
+        },
+        {
+          "name": "GET describir pedidos.creados (200, 3 particiones)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"tiene 3 particiones\", function () {",
+                  "  pm.expect(pm.response.json().partitions.length).to.eql(3);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Detalle del topico pedidos.creados: particiones, lideres, replicas e ISR, y su configuracion (GET /api/kafka/topics/{name}).",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/topics/pedidos.creados",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "topics", "pedidos.creados"]
+            }
+          }
+        },
+        {
+          "name": "GET describir pedidos.estado (200, 3 particiones)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"tiene 3 particiones\", function () {",
+                  "  pm.expect(pm.response.json().partitions.length).to.eql(3);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Detalle del topico pedidos.estado (GET /api/kafka/topics/{name}).",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/topics/pedidos.estado",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "topics", "pedidos.estado"]
+            }
+          }
+        },
+        {
+          "name": "POST crear topico de prueba (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "description": "Crea el topico pedidos.prueba con 1 particion y factor de replicacion 2 (POST /api/kafka/topics). Se elimina al final de este flujo.",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/topics",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "topics"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"pedidos.prueba\",\n  \"partitions\": 1,\n  \"replicationFactor\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT modificar config del topico de prueba (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "description": "Cambia retention.ms del topico de prueba (PUT /api/kafka/topics/{name}/config).",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/topics/pedidos.prueba/config",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "topics", "pedidos.prueba", "config"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"configs\": {\n    \"retention.ms\": \"3600000\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "GET verificar config actualizada (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"retention.ms quedo en 3600000\", function () {",
+                  "  pm.expect(pm.response.json().configs[\"retention.ms\"]).to.eql(\"3600000\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Confirma que el cambio de configuracion del paso anterior se aplico de verdad (GET /api/kafka/topics/{name}).",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/topics/pedidos.prueba",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "topics", "pedidos.prueba"]
+            }
+          }
+        },
+        {
+          "name": "DELETE eliminar topico de prueba (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "description": "Elimina pedidos.prueba (DELETE /api/kafka/topics/{name}), dejando el cluster limpio tras esta carpeta.",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/topics/pedidos.prueba",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "topics", "pedidos.prueba"]
+            }
+          }
+        },
+        {
+          "name": "GET listar consumer groups (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"respuesta es un arreglo\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Lista groupId + state de todos los consumer groups (GET /api/kafka/consumer-groups). Deberian aparecer analytics-dashboard, analytics-ventas y analytics-auditoria si analytics ya arranco al menos una vez.",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/consumer-groups",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "consumer-groups"]
+            }
+          }
+        },
+        {
+          "name": "GET detalle + lag de analytics-dashboard (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"incluye offsets por particion con lag\", function () {",
+                  "  var body = pm.response.json();",
+                  "  pm.expect(body.offsets).to.be.an(\"array\");",
+                  "  pm.expect(body.offsets.length).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Detalle del grupo analytics-dashboard: miembros y, por cada topico/particion, committedOffset/endOffset/lag (GET /api/kafka/consumer-groups/{id}). No existe un endpoint que confirme 'este pedidoId especifico ya fue procesado'; esto solo muestra el lag agregado. Para ver el mensaje real de un pedido puntual, usa Kafka UI (http://localhost:8089 > Topics > pedidos.creados o pedidos.estado > Messages) o 'docker compose logs analytics'.",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/consumer-groups/analytics-dashboard",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "consumer-groups", "analytics-dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Seguridad: sin token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "kafka-admin exige rol Admin en todo /api/** (SecurityConfig: hasRole(\"Admin\")). Sin token -> 401.",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/topics",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "topics"]
+            },
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Seguridad: token Operador (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Token valido pero sin rol Admin -> 403. (El caso Admin -> 200 ya se demuestra en 'GET listar topicos' de esta misma carpeta.)",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/topics",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "topics"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token_operador}}", "type": "string" }]
+            }
+          }
+        },
+        {
+          "name": "Flujo: crear pedido para Kafka (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 201\", function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"pedido_kafka_id\", pm.response.json().id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "description": "Crea un pedido real via el api-gateway (puerto 8090). orders publica PedidoCreadoEvent en pedidos.creados ademas del mensaje de RabbitMQ de siempre.",
+            "url": {
+              "raw": "{{base}}/orders/api/orders",
+              "host": ["{{base}}"],
+              "path": ["orders", "api", "orders"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clienteEmail\": \"cliente.kafka@test.com\",\n  \"descripcion\": \"Pedido de prueba Kafka EP5\",\n  \"total\": 45000\n}"
+            }
+          }
+        },
+        {
+          "name": "Flujo: cambiar estado del pedido (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "description": "Cambia el estado del pedido creado en el paso anterior. orders publica PedidoEstadoEvent en pedidos.estado.",
+            "url": {
+              "raw": "{{base}}/orders/api/orders/{{pedido_kafka_id}}/estado",
+              "host": ["{{base}}"],
+              "path": ["orders", "api", "orders", "{{pedido_kafka_id}}", "estado"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"EN_PREPARACION\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Flujo: lag de analytics despues del pedido (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado esperado: 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Vuelve a consultar el lag de analytics-dashboard despues del flujo anterior; si esta en 0 para pedidos.creados/pedidos.estado, analytics ya consumio todo lo publicado (evidencia indirecta, no por pedidoId). Evidencia directa: revisa Kafka UI (http://localhost:8089) > Topics > pedidos.creados/pedidos.estado > Messages buscando el pedidoId de arriba, o 'docker compose logs analytics' buscando 'recibio evento'.",
+            "url": {
+              "raw": "{{kafkaAdminBase}}/api/kafka/consumer-groups/analytics-dashboard",
+              "host": ["{{kafkaAdminBase}}"],
+              "path": ["api", "kafka", "consumer-groups", "analytics-dashboard"]
             }
           }
         }

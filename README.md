@@ -248,9 +248,9 @@ El `access_token` de la respuesta se envía en cada request como `Authorization:
 ### 8.4 Probar con Postman
 
 1. Importar `docs/postman/Pedidos360_Postman_Roles.postman_collection.json`.
-2. Verificar la variable `base = http://localhost:8090`.
+2. Verificar la variable `base = http://localhost:8090` y `kafkaAdminBase = http://localhost:8091` (kafka-admin no pasa por el api-gateway).
 3. Ejecutar la carpeta **"0. Tokens"** (una petición por rol).
-4. Ejecutar el resto de las carpetas, o usar **Run collection** para correr todo de una vez.
+4. Ejecutar el resto de las carpetas, o usar **Run collection** para correr todo de una vez. La carpeta **"6 — Kafka"** cubre kafka-admin (tópicos, config, consumer groups/lag), los 401/403/200 de seguridad, y el flujo orders → Kafka → analytics (requiere el stack levantado con `docker-compose.kafka.yml`).
 
 Resultados esperados:
 - Sin token → `401`.
