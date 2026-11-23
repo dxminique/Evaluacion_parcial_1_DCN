@@ -72,10 +72,16 @@ Cada microservicio valida su propio JWT y sus propios roles (no hay una validaci
 ```bash
 git clone <url-del-repo>
 cd ms-pedidos360-bff
-docker compose up -d --build
+docker compose -f docker-compose.yml -f docker-compose.kafka.yml up -d --build
 ```
 
-Ese único comando levanta **todo el backend**: `mysql`, `rabbitmq`, `backend` (bff), `catalog`, `orders`, `notify`, `rabbit-admin` y el `api-gateway` local en el puerto `8090`. No se necesita ningún paso manual adicional ni certificados.
+Este comando levanta **todo el backend, incluyendo Kafka** (15 contenedores): los 9 servicios originales (`mysql`, `rabbitmq`, `rabbitmq2`, `backend` (bff), `catalog`, `orders`, `notify`, `rabbit-admin`, `api-gateway` en el puerto `8090`) más `zookeeper`, `kafka1`, `kafka2`, `kafka-ui`, `kafka-admin` y `analytics`. No se necesita ningún paso manual adicional ni certificados.
+
+Si no se necesita Kafka (por ejemplo, para probar solo RabbitMQ y las APIs REST), se puede omitir el segundo `-f` y levantar solo los 9 servicios originales:
+
+```bash
+docker compose up -d --build
+```
 
 El **frontend es opcional** y no es necesario para evaluar el backend con Postman. Si se quiere levantar igual:
 
@@ -83,19 +89,20 @@ El **frontend es opcional** y no es necesario para evaluar el backend con Postma
 # Dentro de Docker (requiere certificados HTTPS vía docker-compose.override.yml, no versionado):
 docker compose --profile frontend up -d --build
 
-# O en modo desarrollo, sin Docker:
+# O en modo desarrollo, sin Docker (requiere su propio frontend-pedidos360/.env, no versionado, con las URLs de catalog/orders):
 cd frontend-pedidos360
 npm install
 npm run dev
 ```
 
-Para detener los servicios:
+Para detener los servicios (agrega el segundo `-f` si los levantaste con Kafka):
 
 ```bash
 docker compose down
+docker compose -f docker-compose.yml -f docker-compose.kafka.yml down
 ```
 
-> No uses `docker compose down -v` en el uso normal: borra los datos de MySQL y de RabbitMQ (colas, usuarios del vhost, etc.). Solo tiene sentido si RabbitMQ no levanta por un volumen viejo (ver [Problemas comunes](#10-problemas-comunes)).
+> No uses `docker compose down -v` en el uso normal: borra los datos de MySQL, RabbitMQ y Kafka. Solo tiene sentido si RabbitMQ no levanta por un volumen viejo (ver [Problemas comunes](#10-problemas-comunes)).
 
 ### 5.1 Puertos y rutas
 
