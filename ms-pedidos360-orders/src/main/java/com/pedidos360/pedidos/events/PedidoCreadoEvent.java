@@ -1,5 +1,6 @@
 package com.pedidos360.pedidos.events;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pedidos360.pedidos.entity.EstadoPedido;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,4 +17,4 @@ public record PedidoCreadoEvent(
         @NotBlank String descripcion,
         @NotNull BigDecimal total,
         @NotNull EstadoPedido estado,
-        @NotNull Instant occurredAt) { }
+        @NotNull @JsonFormat(shape = JsonFormat.Shape.STRING) Instant occurredAt) { }
