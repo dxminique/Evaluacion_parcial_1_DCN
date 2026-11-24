@@ -26,18 +26,18 @@ Las pruebas contemplan:
 
 | ID | Módulo | Caso de prueba | Resultado esperado | Estado |
 |---|---|---|---|---|
-| CP-01 | Infraestructura | Iniciar servicios mediante Docker Compose | Los servicios se inician correctamente | Pendiente |
-| CP-02 | Frontend | Acceder a la aplicación web | La interfaz se carga sin errores | Pendiente |
-| CP-03 | Autenticación | Intentar acceder sin autenticación a un recurso protegido | El backend rechaza el acceso no autorizado | Pendiente |
-| CP-04 | Catálogo | Consultar productos | Se muestran los productos disponibles | Pendiente |
-| CP-05 | Catálogo | Crear un producto con permisos suficientes | El producto queda registrado | Pendiente |
-| CP-06 | Catálogo | Actualizar información de un producto | Los cambios se guardan correctamente | Pendiente |
-| CP-07 | Pedidos | Crear un pedido válido | El pedido queda registrado | Pendiente |
-| CP-08 | Pedidos | Consultar un pedido existente | Se recupera la información del pedido | Pendiente |
-| CP-09 | Pedidos | Actualizar el estado de un pedido | El nuevo estado se registra correctamente | Pendiente |
-| CP-10 | RabbitMQ | Crear un pedido y verificar la publicación del mensaje | El servicio publica el mensaje correspondiente | Pendiente |
-| CP-11 | Notificaciones | Verificar el consumo de un mensaje válido | El servicio de notificaciones procesa el mensaje | Pendiente |
-| CP-12 | Responsive | Visualizar la aplicación en tablet | La interfaz mantiene una presentación utilizable | Pendiente |
+| CP-01 | Infraestructura | Iniciar servicios mediante Docker Compose | Los servicios se inician correctamente | OK |
+| CP-02 | Frontend | Acceder a la aplicación web | La interfaz se carga sin errores | OK |
+| CP-03 | Autenticación | Intentar acceder sin autenticación a un recurso protegido | El backend rechaza el acceso no autorizado | OK |
+| CP-04 | Catálogo | Consultar productos | Se muestran los productos disponibles | OK |
+| CP-05 | Catálogo | Crear un producto con permisos suficientes | El producto queda registrado | OK |
+| CP-06 | Catálogo | Actualizar información de un producto | Los cambios se guardan correctamente | OK |
+| CP-07 | Pedidos | Crear un pedido válido | El pedido queda registrado | OK |
+| CP-08 | Pedidos | Consultar un pedido existente | Se recupera la información del pedido | OK |
+| CP-09 | Pedidos | Actualizar el estado de un pedido | El nuevo estado se registra correctamente | OK |
+| CP-10 | RabbitMQ | Crear un pedido y verificar la publicación del mensaje | El servicio publica el mensaje correspondiente | OK |
+| CP-11 | Notificaciones | Verificar el consumo de un mensaje válido | El servicio de notificaciones procesa el mensaje | OK |
+| CP-12 | Responsive | Visualizar la aplicación en tablet | La interfaz mantiene una presentación utilizable | OK |
 
 ## 5. Criterios de aceptación
 
