@@ -21,7 +21,7 @@ Verificar que la interfaz de Pedidos360 se adapte correctamente a diferentes res
 ## Criterios de validación
 
 - Navegación visible y funcional.
-- Botones accesibles.
+- Botones accesibles y funcional.
 - Formularios adaptados al ancho de pantalla.
 - Tablas y contenidos sin desbordamientos.
 - Textos legibles y sin superposiciones.
